@@ -15,7 +15,7 @@ func main() {
 		log.Println("/ pinged")
 	})
 	http.HandleFunc("/make-cluster", handlers.Make_cluster)
-
+	http.HandleFunc("/delete-cluster", handlers.Delete_cluster)
 	adr := "localhost:2001"
 	log.Println("running at " + adr)
 
