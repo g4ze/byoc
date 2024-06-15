@@ -11,7 +11,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func CreateTaskDefinition(UserName string, Image string, Ports []int32, Environment []types.KeyValuePair) {
+func CreateTaskDefinition(UserName string, Image string, Port int32, Environment []types.KeyValuePair) {
 	// create task definition
 	err := godotenv.Load()
 	if err != nil {
@@ -25,7 +25,7 @@ func CreateTaskDefinition(UserName string, Image string, Ports []int32, Environm
 	type Tasks struct {
 		containerName *string
 		image         *string
-		ports         *[]int32
+		port          *int32
 		environment   *[]types.KeyValuePair
 		family        string
 		essential     bool
@@ -45,12 +45,12 @@ func CreateTaskDefinition(UserName string, Image string, Ports []int32, Environm
 	containerName := UserName + "-" + strings.Replace(strings.Replace(strings.Replace(Image, "/", "-", -1), ".", "-", -1), ":", "-", -1) + "-container"
 	task.containerName = &containerName
 	task.image = &Image
-	task.ports = &Ports
+	task.port = &Port
 	task.environment = &Environment
 	task.family = UserName + "-" + strings.Replace(strings.Replace(strings.Replace(Image, "/", "-", -1), ".", "-", -1), ":", "-", -1) + "-task"
 
 	log.Printf("Creating task definition for %v", *task.containerName)
-
+	portName := *task.containerName + "-" + string(Port)
 	respTask, err := svc.RegisterTaskDefinition(context.TODO(), &ecs.RegisterTaskDefinitionInput{
 		RequiresCompatibilities: []types.Compatibility{types.CompatibilityFargate},
 		NetworkMode:             types.NetworkModeAwsvpc,
@@ -65,17 +65,13 @@ func CreateTaskDefinition(UserName string, Image string, Ports []int32, Environm
 				Name:      task.containerName,
 				Image:     task.image,
 				Essential: &task.essential,
-				PortMappings: func() []types.PortMapping {
-					var portMappings []types.PortMapping
-					for _, port := range *task.ports {
-						portName := *task.containerName + "-" + string(port)
-						portMappings = append(portMappings, types.PortMapping{
-							ContainerPort: &port,
-							Name:          &portName,
-						})
-					}
-					return portMappings
-				}(),
+				PortMappings: []types.PortMapping{
+					{
+
+						ContainerPort: &Port,
+						Name:          &portName,
+					},
+				},
 				Environment: *task.environment,
 			},
 		},
