@@ -3,6 +3,8 @@ package core
 import (
 	"context"
 	"log"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -50,7 +52,12 @@ func CreateTaskDefinition(UserName string, Image string, Port int32, Environment
 	task.family = UserName + "-" + strings.Replace(strings.Replace(strings.Replace(Image, "/", "-", -1), ".", "-", -1), ":", "-", -1) + "-task"
 
 	log.Printf("Creating task definition for %v", *task.containerName)
-	portName := *task.containerName + "-" + string(Port)
+	portName := *task.containerName + "-" + strconv.Itoa(int(Port))
+	// Ensure port mapping name matches the expected pattern
+	if !isValidPortMappingName(portName) {
+		log.Fatalf("Invalid port mapping name: %v", portName)
+	}
+
 	respTask, err := svc.RegisterTaskDefinition(context.TODO(), &ecs.RegisterTaskDefinitionInput{
 		RequiresCompatibilities: []types.Compatibility{types.CompatibilityFargate},
 		NetworkMode:             types.NetworkModeAwsvpc,
@@ -67,7 +74,6 @@ func CreateTaskDefinition(UserName string, Image string, Port int32, Environment
 				Essential: &task.essential,
 				PortMappings: []types.PortMapping{
 					{
-
 						ContainerPort: &Port,
 						Name:          &portName,
 					},
@@ -82,4 +88,12 @@ func CreateTaskDefinition(UserName string, Image string, Port int32, Environment
 	}
 	log.Printf("Task definition created: %v", *respTask.TaskDefinition.TaskDefinitionArn)
 
+}
+
+// Check if the port mapping name is valid
+func isValidPortMappingName(name string) bool {
+	// Regex pattern for valid port mapping name
+	pattern := `^[a-z0-9_][a-z0-9_-]{0,63}$`
+	match, _ := regexp.MatchString(pattern, name)
+	return match
 }
