@@ -5,7 +5,7 @@ import (
 	"github.com/g4ze/byoc/pkg/core"
 )
 
-func Deploy_container(UserName string, Image string, Ports int32, Environment map[string]string) {
+func Deploy_container(UserName string, Image string, Ports int32, Environment map[string]string) string {
 	core.CreateCluster(UserName)
 	// KeyValuePair
 	Environment2 := func() []types.KeyValuePair {
@@ -19,6 +19,10 @@ func Deploy_container(UserName string, Image string, Ports int32, Environment ma
 		return Environment2
 	}()
 	core.CreateTaskDefinition(UserName, Image, Ports, Environment2)
-	core.CreateService(UserName, Image, Ports, Environment2)
-	// CreateTaskDefinition(UserName, Image, Port, Environment)
+	lbDNS := core.CreateService(UserName, Image, Ports, Environment2)
+	if *lbDNS == "OK" {
+		return "OK"
+	} else {
+		return *lbDNS
+	}
 }

@@ -35,11 +35,8 @@ func Deploy_container(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	controllers.Deploy_container(reqPayload.UserName, reqPayload.Image, reqPayload.Port, reqPayload.Environment)
+	resp := controllers.Deploy_container(reqPayload.UserName, reqPayload.Image, reqPayload.Port, reqPayload.Environment)
 
-	// deploy container
-	// ...
+	w.Write([]byte(resp))
 
-	// return response to client
-	// ...
 }

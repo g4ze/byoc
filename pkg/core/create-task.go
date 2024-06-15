@@ -31,7 +31,6 @@ func CreateTaskDefinition(UserName string, Image string, Port int32, Environment
 		environment   *[]types.KeyValuePair
 		family        string
 		essential     bool
-		compatibility types.Compatibility
 		cpu           string
 		memory        string
 	}
