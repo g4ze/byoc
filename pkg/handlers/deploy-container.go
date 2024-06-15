@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/g4ze/byoc/pkg/controllers"
@@ -15,7 +16,7 @@ func Deploy_container(w http.ResponseWriter, r *http.Request) {
 	type payload struct {
 		Image       string            `json:"image"`
 		UserName    string            `json:"userName"`
-		Port        int               `json:"port"`
+		Port        []int32           `json:"port"`
 		Environment map[string]string `json:"environment"`
 	}
 	// check if request payload matches the required payload
@@ -26,12 +27,14 @@ func Deploy_container(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	log.Printf("Received request to deploy container: %v", reqPayload)
 
 	// validate the request payload
-	if reqPayload.Image == "" || reqPayload.UserName == "" || reqPayload.Port == 0 {
+	if reqPayload.Image == "" || reqPayload.UserName == "" || len(reqPayload.Port) == 0 {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
+
 	controllers.Deploy_container(reqPayload.UserName, reqPayload.Image, reqPayload.Port, reqPayload.Environment)
 
 	// deploy container
