@@ -1,11 +1,19 @@
 package controllers
 
 import (
+	"context"
+	"log"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/g4ze/byoc/pkg/core"
+	"github.com/joho/godotenv"
 )
 
-func Deploy_container(UserName string, Image string, Ports int32, Environment map[string]string) string {
+func Deploy_container(UserName string, Image string, Port int32, Environment map[string]string) string {
 	core.CreateCluster(UserName)
 	// KeyValuePair
 	Environment2 := func() []types.KeyValuePair {
@@ -18,8 +26,21 @@ func Deploy_container(UserName string, Image string, Ports int32, Environment ma
 		}
 		return Environment2
 	}()
-	core.CreateTaskDefinition(UserName, Image, Ports, Environment2)
-	lbDNS := core.CreateService(UserName, Image, Ports, Environment2)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatalf("Unable to load SDK config: %v", err)
+	}
+	// Create ECS client
+	svc := ecs.NewFromConfig(cfg)
+	sess := session.Must(session.NewSession())
+	elbSvc := elbv2.New(sess)
+
+	core.CreateTaskDefinition(svc, UserName, Image, Port, Environment2)
+	lbDNS := core.CreateService(svc, elbSvc, UserName, Image, Port, Environment2)
 	if *lbDNS == "OK" {
 		return "OK"
 	} else {
