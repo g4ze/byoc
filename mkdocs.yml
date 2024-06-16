@@ -1,15 +1,11 @@
 site_name: BYOC
 site_url: https://g4ze.github.io/byoc/
 repo_url: https://github.com/g4ze/byoc
+site_author: Nilay Gupya
+
 size: { width: 1200, height: 630 }
 
 plugins:
-  - git-revision-date-localized:
-      enable_creation_date: true
-  # - social:
-  #   cards_layout_options:
-  #     background_image: site/assets/images/social/index.png
-  #     background_color: transparent
   - search:
       lang: en
       separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
