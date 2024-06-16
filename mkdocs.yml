@@ -2,8 +2,9 @@ site_name: BYOC
 site_url: https://g4ze.github.io/byoc/
 repo_url: https://github.com/g4ze/byoc
 site_author: Nilay Gupya
+site_description: Bring Your Own Code
 
-size: { width: 1200, height: 630 }
+
 
 plugins:
   - search:
@@ -29,29 +30,3 @@ theme:
     - content.tabs.link
     - content.code.annotation
     - content.code.copy
-    
-markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - admonition
-  - pymdownx.arithmatex:
-      generic: true
-  - footnotes
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.mark
-  - attr_list
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-extra:
-  social:
-    - icon: fontawesome/brands/github-alt
-      link: https://github.com/g4ze
-    - icon: fontawesome/brands/linkedin-in
-      link: https://www.linkedin.com/in/guptanilay1/
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/guptanilay1
-copyright: Copyright © 2024 Nilay Gupta  
