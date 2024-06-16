@@ -10,25 +10,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v2
         with:
-          key: mkdocs-material-${{ env.cache_id }}
+          key: ${{ github.ref }}
           path: .cache
-          restore-keys: |
-            mkdocs-material-
-      - run: |
-          pip install mkdocs-material 
-          sudo pip install "mkdocs-material[imaging]"
-          sudo apt-get install pngquant
-          sudo apt-get install libcairo2-dev libfreetype6-dev libffi-dev libjpeg-dev libpng-dev libz-dev
-          pip install mkdocs-git-revision-date-localized-plugin
+      - run: pip install mkdocs-material
+      - run: pip install pillow cairosvg
       - run: mkdocs gh-deploy --force
