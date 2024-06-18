@@ -1,0 +1,37 @@
+datasource db {
+    // could be postgresql or mysql
+    provider = "postgresql"
+    url      = "postgresql://postgres:Welcome@localhost:5432/postgres"
+}
+
+generator db {
+    provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+model User {
+    id        String    @id @default(cuid())
+    createdAt DateTime  @default(now())
+    userName  String    @unique
+    email     String    @unique
+    password  String    
+    images    String?
+    services  Service[]
+    cluster   String
+}
+
+
+
+model Service {
+    id              String   @id @default(cuid())
+    createdAt       DateTime @default(now())
+    name            String
+    arn             String
+    taskFamily      String
+    loadBalancerARN String
+    targetGroupARN  String
+    loadbalancerDNS String
+    user            User    @relation(fields: [userId], references: [id])
+    userId          String
+    // logging functionality still in development
+    logs            String?
+}
