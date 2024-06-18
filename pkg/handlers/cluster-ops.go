@@ -2,20 +2,20 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
-func Make_cluster(w http.ResponseWriter, r *http.Request) {
+func Make_Cluster(c *gin.Context) {
 	// get request from client
 	// create cluster
 	// return response to client
-	clusterName := r.URL.Query().Get("clusterName")
+	clusterName := c.Request.URL.Query().Get("clusterName")
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -39,9 +39,9 @@ func Make_cluster(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println(resp.ClusterArns)
 }
-func Delete_cluster(w http.ResponseWriter, r *http.Request) {
+func Delete_Cluster(c *gin.Context) {
 
-	clusterName := r.URL.Query().Get("clusterName")
+	clusterName := c.Request.URL.Query().Get("clusterName")
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -59,10 +59,7 @@ func Delete_cluster(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Panicln("Deleted Cluster", resp)
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	response := map[string]string{
+	c.JSON(http.StatusOK, gin.H{
 		"message": "deleted cluster",
-	}
-	json.NewEncoder(w).Encode(response)
+	})
 }

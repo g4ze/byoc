@@ -1,29 +1,28 @@
 package routes
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/g4ze/byoc/pkg/handlers"
+	"github.com/g4ze/byoc/pkg/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 func Server() {
+	r := gin.Default()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("/ pinged")
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("ping-pong"))
-		log.Println("/ pinged")
-	})
+	authRoutes := r.Group("/v1")
+	authRoutes.Use(middleware.JwtMiddleware())
+	r.Use(middleware.RateLimitMiddleware())
+	// 203 = user already exists
+	// 200 = fed
+	// 429 = too many requests
+	r.POST("/create-user", handlers.Create_User)
+	r.POST("/login", handlers.Login)
 
-	http.HandleFunc("/make-cluster", handlers.Make_cluster)
-	http.HandleFunc("/delete-cluster", handlers.Delete_cluster)
-	http.HandleFunc("/deploy-container", handlers.Deploy_container)
-	adr := "localhost:2001"
-	log.Println("running at " + adr)
-	err := http.ListenAndServe(adr, nil)
+	// Create a new group for routes that require JWT middleware
+	authRoutes.POST("/whoami", handlers.WhoAMI)
+	authRoutes.POST("/make-cluster", handlers.Make_Cluster)
+	authRoutes.DELETE("/delete-cluster", handlers.Delete_Cluster)
+	// authRoutes.POST("/deploy-container", handlers.Deploy_Container)
 
-	if err != nil {
-		log.Fatal("oh no, something went wrong" + err.Error())
-	}
+	r.Run(":2001") // listen and serve on 0.0.0.0:2001
 }
