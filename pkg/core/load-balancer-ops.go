@@ -45,7 +45,8 @@ func CreateLoadBalancer(elbSvc *elbv2.ELBV2, Image string) (*string, *string, er
 
 func DeleteLoadBalancer(elbSvc *elbv2.ELBV2, Image string) {
 	// delete load balancer
-	loadBalancerName := strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(Image, "/", "-"), ".", "-"), ":", "-") + "-" + "lb"
+	loadBalancerName := generateName("", Image, "lb")
+	log.Printf("Deleting load balancer %s", loadBalancerName)
 	loadBalancerList, err := elbSvc.DescribeLoadBalancers(&elbv2.DescribeLoadBalancersInput{
 		Names: []*string{&loadBalancerName},
 	})
@@ -53,7 +54,9 @@ func DeleteLoadBalancer(elbSvc *elbv2.ELBV2, Image string) {
 		log.Printf("Unable to describe load balancer: %v", err)
 	}
 	for _, lb := range loadBalancerList.LoadBalancers {
-		if lb.LoadBalancerName == &loadBalancerName {
+		log.Printf("LB name %v", *lb.LoadBalancerName)
+		if *lb.LoadBalancerName == loadBalancerName {
+			log.Printf("Deleting load balancer %s", *lb.LoadBalancerArn)
 			_, err := elbSvc.DeleteLoadBalancer(&elbv2.DeleteLoadBalancerInput{
 				LoadBalancerArn: lb.LoadBalancerArn,
 			})

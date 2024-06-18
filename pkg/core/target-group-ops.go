@@ -35,3 +35,11 @@ func CreateTargetGroup(elbSvc *elbv2.ELBV2, Image string) (*string, error) {
 	log.Printf("TG CREATED")
 	return createResp.TargetGroups[0].TargetGroupArn, nil
 }
+
+// should be instable
+func DeleteTargetGroup(elbSvc *elbv2.ELBV2, targetGroupArn *string) error {
+	_, err := elbSvc.DeleteTargetGroup(&elbv2.DeleteTargetGroupInput{
+		TargetGroupArn: targetGroupArn,
+	})
+	return err
+}

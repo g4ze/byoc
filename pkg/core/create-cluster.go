@@ -6,26 +6,15 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/joho/godotenv"
 )
 
 // CreateCluster creates a cluster if clustername doesnt already exists.
 // ClusterName is the unique username of the user
-func CreateCluster(clusterName string) {
-	// create cluster
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		log.Fatalf("unable to load SDK config, %v", err)
-	}
-	svc := ecs.NewFromConfig(cfg)
-	if checkUserCluster(clusterName, *svc) {
+func CreateCluster(svc *ecs.Client, clusterName string) {
+	// check if cluster already exists
+	if CheckUserCluster(clusterName, *svc) {
 		log.Println("Cluster already exists")
 		return
 	}
@@ -43,7 +32,20 @@ func CreateCluster(clusterName string) {
 	}
 	log.Println(respCluster.Cluster.ClusterName, " created")
 }
-func checkUserCluster(ClusterName string, svc ecs.Client) bool {
+
+func DeleteCluster(svc *ecs.Client, clusterName string) {
+
+	_, err := svc.DeleteCluster(context.TODO(), &ecs.DeleteClusterInput{
+		Cluster: &clusterName,
+	})
+	if err != nil {
+		log.Fatalf("unable to delete cluster, %v", err)
+	}
+	log.Println("Cluster deleted")
+}
+
+// this also needs to work on cluster arn and not cluster name
+func CheckUserCluster(ClusterName string, svc ecs.Client) bool {
 	// check if user has a cluster
 	resp, err := svc.ListClusters(context.TODO(), &ecs.ListClustersInput{})
 	if err != nil {
@@ -61,4 +63,14 @@ func checkUserCluster(ClusterName string, svc ecs.Client) bool {
 		}
 	}
 	return false
+}
+func ClusterStatus(svc *ecs.Client, clusterName string) string {
+	resp, err := svc.DescribeClusters(context.TODO(), &ecs.DescribeClustersInput{
+		Clusters: []string{clusterName},
+	})
+	if err != nil {
+		log.Fatalf("unable to describe cluster, %v", err)
+	}
+	log.Printf("Cluster status: %v", *resp.Clusters[0].Status)
+	return *resp.Clusters[0].Status
 }

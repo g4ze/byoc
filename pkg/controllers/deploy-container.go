@@ -14,7 +14,7 @@ import (
 )
 
 func Deploy_container(UserName string, Image string, Port int32, Environment map[string]string) string {
-	core.CreateCluster(UserName)
+
 	// KeyValuePair
 	Environment2 := func() []types.KeyValuePair {
 		var Environment2 []types.KeyValuePair
@@ -38,7 +38,7 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	svc := ecs.NewFromConfig(cfg)
 	sess := session.Must(session.NewSession())
 	elbSvc := elbv2.New(sess)
-
+	core.CreateCluster(svc, UserName)
 	core.CreateTaskDefinition(svc, UserName, Image, Port, Environment2)
 	lbDNS := core.CreateService(svc, elbSvc, UserName, Image, Port, Environment2)
 	if *lbDNS == "OK" {

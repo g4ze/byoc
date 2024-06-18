@@ -15,7 +15,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	containerName := generateName(UserName, Image, "container")
 	serviceName := generateName(UserName, Image, "service")
 	taskName := generateName(UserName, Image, "task")
-	isService, serviceStatus, err := serviceExists(svc, serviceName, UserName)
+	isService, serviceStatus, err := ServiceExists(svc, serviceName, UserName)
 	if err != nil {
 		log.Fatalf("Error checking if service exists: %v", err)
 	}
@@ -45,7 +45,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	if err != nil {
 		log.Fatalf("Failed to create target group: %v", err)
 	}
-	err = createListener(elbSvc, loadBalancerArn, targetGroupArn)
+	err = CreateListener(elbSvc, loadBalancerArn, targetGroupArn)
 	if err != nil {
 		log.Fatalf("Failed to create listener: %v", err)
 	}
@@ -96,29 +96,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	return lbdns
 }
 
-func createListener(elbSvc *elbv2.ELBV2, loadBalancerArn *string, targetGroupArn *string) error {
-	listenerInput := &elbv2.CreateListenerInput{
-		LoadBalancerArn: loadBalancerArn,
-		Protocol:        aws.String("HTTP"),
-		Port:            aws.Int64(80),
-		DefaultActions: []*elbv2.Action{
-			{
-				Type: aws.String("forward"),
-				ForwardConfig: &elbv2.ForwardActionConfig{
-					TargetGroups: []*elbv2.TargetGroupTuple{
-						{
-							TargetGroupArn: targetGroupArn,
-						},
-					},
-				},
-			},
-		},
-	}
-
-	_, err := elbSvc.CreateListener(listenerInput)
-	return err
-}
-func serviceExists(svc *ecs.Client, serviceName string, clusterName string) (bool, any, error) {
+func ServiceExists(svc *ecs.Client, serviceName string, clusterName string) (bool, any /*string for status*/, error) {
 	input := &ecs.DescribeServicesInput{
 		Services: []string{serviceName},
 		Cluster:  aws.String(clusterName),
@@ -136,4 +114,34 @@ func serviceExists(svc *ecs.Client, serviceName string, clusterName string) (boo
 	log.Printf("service is %v", *result.Services[0].ServiceName)
 
 	return true, *result.Services[0].Status, nil
+}
+func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, serviceName string, clusterName string, Image string) {
+	if _, status, _ := ServiceExists(svc, serviceName, clusterName); status == "ACTIVE" {
+		UpdateServiceToZeroCount(svc, serviceName, clusterName)
+	}
+	_, err := svc.DeleteService(context.TODO(), &ecs.DeleteServiceInput{
+		Service: &serviceName,
+		Cluster: &clusterName,
+	})
+	if err != nil {
+		log.Fatalf("Unable to delete service: %v", err)
+	}
+	log.Printf("Service deleted")
+
+	DeleteLoadBalancer(elbSvc, Image)
+	DeleteTaskDefination(svc, clusterName, Image)
+	// DeleteTargetGroup(_)
+}
+func UpdateServiceToZeroCount(svc *ecs.Client, serviceName string, clusterName string) {
+	_, err := svc.UpdateService(context.TODO(), &ecs.UpdateServiceInput{
+		Service:            &serviceName,
+		Cluster:            &clusterName,
+		ForceNewDeployment: true,
+		DesiredCount:       aws.Int32(0),
+	})
+	if err != nil {
+		log.Fatalf("Unable to update service to 0: %v", err)
+	} else {
+		log.Printf("Service updated to 0")
+	}
 }
