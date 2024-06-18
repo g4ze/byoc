@@ -2,22 +2,24 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/aws/aws-sdk-go/service/elbv2"
+	byocTypes "github.com/g4ze/byoc/pkg/types"
 )
 
-func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image string, Port int32, Environment []types.KeyValuePair) *string {
-
+func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image string, Port int32, Environment []types.KeyValuePair) (*byocTypes.Service, error) {
+	var desiredCount int32 = 2
 	containerName := generateName(UserName, Image, "container")
 	serviceName := generateName(UserName, Image, "service")
 	taskName := generateName(UserName, Image, "task")
 	isService, serviceStatus, err := ServiceExists(svc, serviceName, UserName)
 	if err != nil {
-		log.Fatalf("Error checking if service exists: %v", err)
+		return nil, fmt.Errorf("error checking if service esists %+v", err)
 	}
 	if isService {
 		log.Printf("Service %s already exists. Skipping creation.", serviceName)
@@ -29,32 +31,33 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 				DesiredCount:       aws.Int32(2),
 			})
 			if err != nil {
-				log.Fatalf("Unable to update service: %v", err)
+				return nil, fmt.Errorf("unable to update service: %+v", err)
+
 			}
 		}
 
-		return aws.String("OK")
+		return nil, nil
 	}
 	// this needs a change, we cant keep creating load balancers
 	// based on the image name, we need to create a unique name
 	loadBalancerArn, lbdns, err := CreateLoadBalancer(elbSvc, Image)
 	if err != nil {
-		log.Fatalf("Failed to create load balancer: %v", err)
+		return nil, fmt.Errorf("failed to create load balancer: %+v", err)
 	}
 	targetGroupArn, err := CreateTargetGroup(elbSvc, Image)
 	if err != nil {
-		log.Fatalf("Failed to create target group: %v", err)
+		return nil, fmt.Errorf("failed to create target group: %v", err)
 	}
 	err = CreateListener(elbSvc, loadBalancerArn, targetGroupArn)
 	if err != nil {
-		log.Fatalf("Failed to create listener: %v", err)
+		return nil, fmt.Errorf("failed to create listener: %v", err)
 	}
 	// Generate names
 
 	serviceInput := &ecs.CreateServiceInput{
 		ServiceName:  &serviceName,
 		Cluster:      &UserName,
-		DesiredCount: aws.Int32(2),
+		DesiredCount: &desiredCount,
 		LaunchType:   types.LaunchTypeFargate,
 		LoadBalancers: []types.LoadBalancer{
 			{
@@ -89,11 +92,19 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 
 	resp, err := svc.CreateService(context.TODO(), serviceInput)
 	if err != nil {
-		log.Fatalf("Failed to create service: %v", err)
+		return nil, fmt.Errorf("Failed to create service: %v", err)
 	}
 
 	log.Printf("Service created with status: %v", *resp.Service.Status)
-	return lbdns
+	return &byocTypes.Service{
+		Name:            serviceName,
+		Arn:             *resp.Service.ServiceArn,
+		TaskFamily:      taskName,
+		LoadBalancerARN: *loadBalancerArn,
+		TargetGroupARN:  *targetGroupArn,
+		LoadbalancerDNS: *lbdns,
+		DesiredCount:    desiredCount,
+	}, nil
 }
 
 func ServiceExists(svc *ecs.Client, serviceName string, clusterName string) (bool, any /*string for status*/, error) {

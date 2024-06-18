@@ -22,7 +22,7 @@ func Server() {
 	authRoutes.POST("/whoami", handlers.WhoAMI)
 	authRoutes.POST("/make-cluster", handlers.Make_Cluster)
 	authRoutes.DELETE("/delete-cluster", handlers.Delete_Cluster)
-	// authRoutes.POST("/deploy-container", handlers.Deploy_Container)
+	authRoutes.POST("/deploy-container", handlers.Deploy_Container)
 
 	r.Run(":2001") // listen and serve on 0.0.0.0:2001
 }

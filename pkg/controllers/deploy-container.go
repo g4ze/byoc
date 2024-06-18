@@ -10,10 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/g4ze/byoc/pkg/core"
+	"github.com/g4ze/byoc/pkg/database"
+	byocTypes "github.com/g4ze/byoc/pkg/types"
 	"github.com/joho/godotenv"
 )
 
-func Deploy_container(UserName string, Image string, Port int32, Environment map[string]string) string {
+func Deploy_container(UserName string, Image string, Port int32, Environment map[string]string) (*byocTypes.Service, error) {
 
 	// KeyValuePair
 	Environment2 := func() []types.KeyValuePair {
@@ -40,10 +42,15 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	elbSvc := elbv2.New(sess)
 	core.CreateCluster(svc, UserName)
 	core.CreateTaskDefinition(svc, UserName, Image, Port, Environment2)
-	lbDNS := core.CreateService(svc, elbSvc, UserName, Image, Port, Environment2)
-	if *lbDNS == "OK" {
-		return "OK"
-	} else {
-		return *lbDNS
+	service, err := core.CreateService(svc, elbSvc, UserName, Image, Port, Environment2)
+	if err != nil {
+		return nil, err
 	}
+
+	err = database.InsertService(service, UserName)
+	if err != nil {
+		return nil, err
+	}
+	return service, nil
+
 }

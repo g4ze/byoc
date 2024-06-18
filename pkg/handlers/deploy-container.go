@@ -6,10 +6,11 @@ import (
 	"net/http"
 
 	"github.com/g4ze/byoc/pkg/controllers"
+	"github.com/g4ze/byoc/pkg/database"
 	"github.com/gin-gonic/gin"
 )
 
-func Deploy_container(c *gin.Context) {
+func Deploy_Container(c *gin.Context) {
 	// define a struct to verify data integrity
 	// get request from client
 	// deploy container
@@ -36,8 +37,11 @@ func Deploy_container(c *gin.Context) {
 		return
 	}
 
-	resp := controllers.Deploy_container(reqPayload.UserName, reqPayload.Image, reqPayload.Port, reqPayload.Environment)
-
+	resp, err := controllers.Deploy_container(reqPayload.UserName, reqPayload.Image, reqPayload.Port, reqPayload.Environment)
+	if err != nil {
+		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	database.InsertService(resp, reqPayload.UserName)
 	c.JSON(http.StatusOK, resp)
-
 }

@@ -20,12 +20,12 @@ func Login(c *gin.Context) {
 		http.Error(c.Writer, err.Error(), http.StatusBadRequest)
 		return
 	}
-	validUser, err := database.ValidateUser(user.UserName, user.Password)
+	userReceived, err := database.GetUser(user.UserName, user.Password)
 	if err != nil {
 		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if !validUser {
+	if userReceived == nil {
 		http.Error(c.Writer, "User does not exist", http.StatusUnauthorized)
 		return
 	}

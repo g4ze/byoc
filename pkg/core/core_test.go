@@ -83,15 +83,15 @@ func TestService(t *testing.T) {
 	svc := ecs.NewFromConfig(cfg)
 	sess := session.Must(session.NewSession())
 	elbSvc := elbv2.New(sess)
-
+	img := "docker.io/g4ze/cattodb:latest"
 	CreateCluster(svc, "test")
-	CreateTaskDefinition(svc, "test", "test", 80, nil)
+	CreateTaskDefinition(svc, "test", img, 80, nil)
 	log.Printf("Creating service")
-	CreateService(svc, elbSvc, "test", "test", int32(80), []types.KeyValuePair{{Name: aws.String("test"), Value: aws.String("test")}})
+	CreateService(svc, elbSvc, "test", img, int32(80), []types.KeyValuePair{{Name: aws.String("test"), Value: aws.String("test")}})
 
 	time.Sleep(10 * time.Second)
 	log.Printf("Deleting service")
-	DeleteService(elbSvc, svc, generateName("test", "test", "service"), "test", "test")
+	DeleteService(elbSvc, svc, generateName("test", img, "service"), "test", "test")
 	time.Sleep(10 * time.Second)
 	DeleteCluster(svc, "test")
 }

@@ -9,9 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2"
 )
 
-// major issue here is that we are working on the basis of loadbalancernames
-// which are not unique, so we need to work with lb arn
-// for that we shall implement db soon
 func CreateLoadBalancer(elbSvc *elbv2.ELBV2, Image string) (*string, *string, error) {
 	loadBalancerName := strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(Image, "/", "-"), ".", "-"), ":", "-") + "-" + "lb"
 
@@ -41,6 +38,15 @@ func CreateLoadBalancer(elbSvc *elbv2.ELBV2, Image string) (*string, *string, er
 	lbdns := *createResp.LoadBalancers[0].DNSName
 	log.Printf("LB public DNS %v", lbdns)
 	return createResp.LoadBalancers[0].LoadBalancerArn, &lbdns, nil
+}
+func DeleteLoadBlancerARN(elbSvc *elbv2.ELBV2, LoadBalancerARN *string) {
+	_, err := elbSvc.DeleteLoadBalancer(&elbv2.DeleteLoadBalancerInput{
+		LoadBalancerArn: LoadBalancerARN,
+	})
+	if err != nil {
+		log.Printf("Unable to delete load balancer: %v", err)
+		return
+	}
 }
 
 func DeleteLoadBalancer(elbSvc *elbv2.ELBV2, Image string) {

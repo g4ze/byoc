@@ -9,3 +9,13 @@ type Login struct {
 	UserName string `json:"username"`
 	Password string `json:"password"`
 }
+
+type Service struct {
+	Name            string `json:"name"`
+	Arn             string `json:"arn"`
+	TaskFamily      string `json:"taskFamily"`
+	LoadBalancerARN string `json:"loadBalancerARN"`
+	TargetGroupARN  string `json:"targetGroupARN"`
+	LoadbalancerDNS string `json:"loadbalancerDNS"`
+	DesiredCount    int32  `json:"desiredCount"`
+}

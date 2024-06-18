@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/g4ze/byoc/pkg/database"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"golang.org/x/time/rate"
@@ -74,6 +74,14 @@ func GenerateJWT(password, userName string) (string, error) {
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
+	user, err := database.GetUser(userName, password)
+	if err != nil {
+		return "", err
+	}
+	if user == nil {
+		return "", nil
+	}
+
 	var KEY = []byte(os.Getenv("JWT_SECRET"))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -85,35 +93,4 @@ func GenerateJWT(password, userName string) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
-}
-
-// returns username if token is valid
-// returns error if any error
-// return false if token is invalid
-func ValidateJWT(tokenString string) (string, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	var JwtKey = []byte(os.Getenv("JWT_SECRET"))
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return JwtKey, nil
-	})
-
-	if err != nil {
-		return "", err
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", errors.New("invalid token claims")
-	}
-
-	userName, ok := claims["userName"].(string)
-	if !ok {
-		return "", errors.New("invalid userName claim")
-	}
-
-	return userName, nil
 }
