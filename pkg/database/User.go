@@ -86,11 +86,11 @@ func DeleteUser(UserName string) error {
 }
 
 // validate user
-func ValidateUser(UserName string, Password string) (bool, error) {
+func GetUser(UserName string, Password string) (*db.UserModel, error) {
 
 	client := db.NewClient()
 	if err := client.Prisma.Connect(); err != nil {
-		return false, err
+		return nil, err
 	}
 	defer func() {
 		if err := client.Prisma.Disconnect(); err != nil {
@@ -102,10 +102,29 @@ func ValidateUser(UserName string, Password string) (bool, error) {
 		db.User.UserName.Equals(UserName),
 	).Exec(ctx)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	if user.Password == Password {
-		return true, nil
+		return user, nil
 	}
-	return false, nil
+	return nil, nil
+}
+func GetUserByName(UserName string) (*db.UserModel, error) {
+	client := db.NewClient()
+	if err := client.Prisma.Connect(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := client.Prisma.Disconnect(); err != nil {
+			panic(err)
+		}
+	}()
+	ctx := context.Background()
+	user, err := client.User.FindUnique(
+		db.User.UserName.Equals(UserName),
+	).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

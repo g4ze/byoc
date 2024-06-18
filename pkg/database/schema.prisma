@@ -9,17 +9,14 @@ generator db {
 }
 
 model User {
-    id        String    @id @default(cuid())
     createdAt DateTime  @default(now())
-    userName  String    @unique
+    userName  String    @id @unique
     email     String    @unique
-    password  String    
+    password  String
     images    String?
     services  Service[]
     cluster   String
 }
-
-
 
 model Service {
     id              String   @id @default(cuid())
@@ -30,8 +27,9 @@ model Service {
     loadBalancerARN String
     targetGroupARN  String
     loadbalancerDNS String
-    user            User    @relation(fields: [userId], references: [id])
-    userId          String
+    DesiredCount    Int
+    user            User     @relation(fields: [userName], references: [userName])
+    userName         String
     // logging functionality still in development
     logs            String?
 }
