@@ -28,9 +28,10 @@ model Service {
     targetGroupARN  String
     loadbalancerDNS String
     DesiredCount    Int
-    user            User     @relation(fields: [userName], references: [userName])
     cluster         String
     image           String
+    user            User     @relation(fields: [userName], references: [userName])
+   
     userName        String
     // logging functionality still in development
     logs            String?

@@ -50,9 +50,12 @@ func TestTaskFunctions(t *testing.T) {
 	svc := ecs.NewFromConfig(cfg)
 	log.Printf("Creating task definition")
 	// CreateTaskDefinition(svc, "test", "test", 80, nil)
-	CreateTaskDefinition(svc, "test", "test", 80, nil)
-	CreateTaskDefinition(svc, "test", "test", 80, nil)
-	DeleteTaskDefination(svc, "test", "test")
+	err = CreateTaskDefinition(svc, "test", "test", 80, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// CreateTaskDefinition(svc, "test", "test", 80, nil)
+	// DeleteTaskDefination(svc, "test", "test")
 }
 
 func TestCluster(t *testing.T) {

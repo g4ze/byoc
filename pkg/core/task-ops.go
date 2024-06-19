@@ -16,19 +16,20 @@ import (
 // it makes a new revision on it.
 func CreateTaskDefinition(svc *ecs.Client, UserName string, Image string, Port int32, Environment []types.KeyValuePair) error {
 	// create task definition
-
 	Essential := true
+	// cpu and memory values are sensitive to weach other
 	Cpu := "1024"
 	Memory := "2048"
 	containerName := generateName(UserName, Image, "container")
 	Family := generateName(UserName, Image, "task")
+	log.Printf("Family: %v", Family)
 	log.Printf("Creating task definition for %v", containerName)
 	portName := containerName + "-" + strconv.Itoa(int(Port))
 	// Ensure port mapping name matches the expected pattern
 	if !isValidPortMappingName(portName) {
-		return fmt.Errorf("Invalid port mapping name: %v", portName)
+		return fmt.Errorf("invalid port mapping name: %v", portName)
 	}
-
+	log.Printf("Port mapping name: %v", portName)
 	respTask, err := svc.RegisterTaskDefinition(context.TODO(), &ecs.RegisterTaskDefinitionInput{
 		RequiresCompatibilities: []types.Compatibility{types.CompatibilityFargate},
 		NetworkMode:             types.NetworkModeAwsvpc,
@@ -72,7 +73,6 @@ func isValidPortMappingName(name string) bool {
 // function deregisters all the revisions of a task defination
 // and then deletes the task defination
 func DeleteTaskDefination(svc *ecs.Client, UserName string, Image string) error {
-	// delete task definition
 
 	Family := generateName(UserName, Image, "task")
 	log.Printf("Deleting task definition for %v", Family)

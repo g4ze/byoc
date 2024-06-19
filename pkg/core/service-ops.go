@@ -16,7 +16,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	var desiredCount int32 = 2
 	containerName := generateName(UserName, Image, "container")
 	serviceName := generateNameFromImage(Image)
-	taskName := generateName(UserName, Image, "task")
+	Family := generateName(UserName, Image, "task")
 	isService, serviceStatus, err := ServiceExists(svc, serviceName, UserName)
 	if err != nil {
 		return nil, fmt.Errorf("error checking if service esists %+v", err)
@@ -87,7 +87,8 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 				Rollback: true,
 			},
 		},
-		TaskDefinition: &taskName,
+		// automatically takes latest rev
+		TaskDefinition: &Family,
 	}
 
 	resp, err := svc.CreateService(context.TODO(), serviceInput)
@@ -99,7 +100,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	return &byocTypes.Service{
 		Name:            serviceName,
 		Arn:             *resp.Service.ServiceArn,
-		TaskFamily:      taskName,
+		TaskFamily:      Family,
 		LoadBalancerARN: *loadBalancerArn,
 		TargetGroupARN:  *targetGroupArn,
 		LoadbalancerDNS: *lbdns,

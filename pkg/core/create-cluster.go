@@ -16,7 +16,7 @@ import (
 func CreateCluster(svc *ecs.Client, clusterName string) error {
 	// check if cluster already exists
 	if CheckUserCluster(clusterName, *svc) {
-		return fmt.Errorf("cluster already exists")
+		log.Print("cluster already exists")
 	}
 	respCluster, err := svc.CreateCluster(context.TODO(), &ecs.CreateClusterInput{
 		CapacityProviders: []string{"FARGATE", "FARGATE_SPOT"},

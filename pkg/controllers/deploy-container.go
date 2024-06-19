@@ -40,8 +40,16 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	svc := ecs.NewFromConfig(cfg)
 	sess := session.Must(session.NewSession())
 	elbSvc := elbv2.New(sess)
-	core.CreateCluster(svc, UserName)
-	core.CreateTaskDefinition(svc, UserName, Image, Port, Environment2)
+	err = core.CreateCluster(svc, UserName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = core.CreateTaskDefinition(svc, UserName, Image, Port, Environment2)
+	if err != nil {
+		return nil, err
+	}
+
 	service, err := core.CreateService(svc, elbSvc, UserName, Image, Port, Environment2)
 	if err != nil {
 		return nil, err
