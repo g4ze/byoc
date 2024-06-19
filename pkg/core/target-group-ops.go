@@ -38,8 +38,12 @@ func CreateTargetGroup(elbSvc *elbv2.ELBV2, Image string) (*string, error) {
 
 // should be instable
 func DeleteTargetGroup(elbSvc *elbv2.ELBV2, targetGroupArn *string) error {
+	log.Printf("Deleting target group %s", *targetGroupArn)
 	_, err := elbSvc.DeleteTargetGroup(&elbv2.DeleteTargetGroupInput{
 		TargetGroupArn: targetGroupArn,
 	})
-	return err
+	if err != nil {
+		return fmt.Errorf("unable to delete target group: %v", err)
+	}
+	return nil
 }

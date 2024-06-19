@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -12,11 +13,10 @@ import (
 
 // CreateCluster creates a cluster if clustername doesnt already exists.
 // ClusterName is the unique username of the user
-func CreateCluster(svc *ecs.Client, clusterName string) {
+func CreateCluster(svc *ecs.Client, clusterName string) error {
 	// check if cluster already exists
 	if CheckUserCluster(clusterName, *svc) {
-		log.Println("Cluster already exists")
-		return
+		return fmt.Errorf("cluster already exists")
 	}
 	respCluster, err := svc.CreateCluster(context.TODO(), &ecs.CreateClusterInput{
 		CapacityProviders: []string{"FARGATE", "FARGATE_SPOT"},
@@ -28,20 +28,22 @@ func CreateCluster(svc *ecs.Client, clusterName string) {
 		},
 	})
 	if err != nil {
-		log.Printf("unable to create cluster, %v\n", err)
+		return fmt.Errorf("unable to create cluster, %v", err)
 	}
 	log.Println(respCluster.Cluster.ClusterName, " created")
+	return nil
 }
 
-func DeleteCluster(svc *ecs.Client, clusterName string) {
+func DeleteCluster(svc *ecs.Client, clusterName string) error {
 
 	_, err := svc.DeleteCluster(context.TODO(), &ecs.DeleteClusterInput{
 		Cluster: &clusterName,
 	})
 	if err != nil {
-		log.Fatalf("unable to delete cluster, %v", err)
+		return fmt.Errorf("unable to delete cluster, %v", err)
 	}
 	log.Println("Cluster deleted")
+	return nil
 }
 
 // this also needs to work on cluster arn and not cluster name
@@ -64,13 +66,13 @@ func CheckUserCluster(ClusterName string, svc ecs.Client) bool {
 	}
 	return false
 }
-func ClusterStatus(svc *ecs.Client, clusterName string) string {
+func ClusterStatus(svc *ecs.Client, clusterName string) (string, error) {
 	resp, err := svc.DescribeClusters(context.TODO(), &ecs.DescribeClustersInput{
 		Clusters: []string{clusterName},
 	})
 	if err != nil {
-		log.Fatalf("unable to describe cluster, %v", err)
+		return "", fmt.Errorf("unable to describe cluster, %v", err)
 	}
 	log.Printf("Cluster status: %v", *resp.Clusters[0].Status)
-	return *resp.Clusters[0].Status
+	return *resp.Clusters[0].Status, nil
 }

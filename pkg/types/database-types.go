@@ -18,4 +18,6 @@ type Service struct {
 	TargetGroupARN  string `json:"targetGroupARN"`
 	LoadbalancerDNS string `json:"loadbalancerDNS"`
 	DesiredCount    int32  `json:"desiredCount"`
+	Cluster         string `json:"cluster"`
+	Image           string `json:"image"`
 }

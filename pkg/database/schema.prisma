@@ -29,7 +29,9 @@ model Service {
     loadbalancerDNS String
     DesiredCount    Int
     user            User     @relation(fields: [userName], references: [userName])
-    userName         String
+    cluster         String
+    image           String
+    userName        String
     // logging functionality still in development
     logs            String?
 }

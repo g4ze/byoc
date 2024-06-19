@@ -24,10 +24,13 @@ func TestLoadBalancerFunctions(t *testing.T) {
 	sess := session.Must(session.NewSession())
 	elbSvc := elbv2.New(sess)
 	log.Printf("Creating load balancer")
-	CreateLoadBalancer(elbSvc, "test")
+	lbarn, _, err := CreateLoadBalancer(elbSvc, "test")
+	if err != nil {
+		log.Fatalf("Error creating load balancer: %v", err)
+	}
 	log.Printf("Deleting load balancer")
 	log.Println("Tesing single delete")
-	DeleteLoadBalancer(elbSvc, "test")
+	DeleteLoadBalancerARN(elbSvc, lbarn)
 	log.Printf("Checking for deletion ALL of load balancer")
 	CreateLoadBalancer(elbSvc, "test1")
 	CreateLoadBalancer(elbSvc, "test2")
@@ -63,9 +66,18 @@ func TestCluster(t *testing.T) {
 	}
 	svc := ecs.NewFromConfig(cfg)
 	log.Printf("Creating cluster: test")
-	CreateCluster(svc, "test")
-	DeleteCluster(svc, "test")
-	status := ClusterStatus(svc, "test")
+	err = CreateCluster(svc, "test")
+	if err != nil {
+		log.Fatalf("Error creating cluster: %v", err)
+	}
+	err = DeleteCluster(svc, "test")
+	if err != nil {
+		log.Fatalf("Error deleting cluster: %v", err)
+	}
+	status, err := ClusterStatus(svc, "test")
+	if err != nil {
+		log.Fatalf("Error getting cluster status: %v", err)
+	}
 	if status != "INACTIVE" {
 		t.Errorf("Cluster should be inactive but got %s", status)
 	}
@@ -83,15 +95,21 @@ func TestService(t *testing.T) {
 	svc := ecs.NewFromConfig(cfg)
 	sess := session.Must(session.NewSession())
 	elbSvc := elbv2.New(sess)
-	img := "docker.io/g4ze/cattodb:latest"
-	CreateCluster(svc, "test")
+	img := "test"
+	err = CreateCluster(svc, "test")
+	if err != nil {
+		log.Fatalf("Error creating cluster: %v", err)
+	}
+
 	CreateTaskDefinition(svc, "test", img, 80, nil)
 	log.Printf("Creating service")
-	CreateService(svc, elbSvc, "test", img, int32(80), []types.KeyValuePair{{Name: aws.String("test"), Value: aws.String("test")}})
-
+	service, err := CreateService(svc, elbSvc, "test", img, int32(80), []types.KeyValuePair{{Name: aws.String("test"), Value: aws.String("test")}})
+	if err != nil {
+		log.Fatalf("Error creating service: %v", err)
+	}
 	time.Sleep(10 * time.Second)
 	log.Printf("Deleting service")
-	DeleteService(elbSvc, svc, generateName("test", img, "service"), "test", "test")
+	DeleteService(elbSvc, svc, service)
 	time.Sleep(10 * time.Second)
 	DeleteCluster(svc, "test")
 }

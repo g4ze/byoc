@@ -15,7 +15,7 @@ import (
 func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image string, Port int32, Environment []types.KeyValuePair) (*byocTypes.Service, error) {
 	var desiredCount int32 = 2
 	containerName := generateName(UserName, Image, "container")
-	serviceName := generateName(UserName, Image, "service")
+	serviceName := generateNameFromImage(Image)
 	taskName := generateName(UserName, Image, "task")
 	isService, serviceStatus, err := ServiceExists(svc, serviceName, UserName)
 	if err != nil {
@@ -92,7 +92,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 
 	resp, err := svc.CreateService(context.TODO(), serviceInput)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create service: %v", err)
+		return nil, fmt.Errorf("failed to create service: %v", err)
 	}
 
 	log.Printf("Service created with status: %v", *resp.Service.Status)
@@ -104,6 +104,8 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 		TargetGroupARN:  *targetGroupArn,
 		LoadbalancerDNS: *lbdns,
 		DesiredCount:    desiredCount,
+		Cluster:         UserName,
+		Image:           Image,
 	}, nil
 }
 
@@ -126,24 +128,39 @@ func ServiceExists(svc *ecs.Client, serviceName string, clusterName string) (boo
 
 	return true, *result.Services[0].Status, nil
 }
-func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, serviceName string, clusterName string, Image string) {
-	if _, status, _ := ServiceExists(svc, serviceName, clusterName); status == "ACTIVE" {
-		UpdateServiceToZeroCount(svc, serviceName, clusterName)
+func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Service) error {
+	if _, status, _ := ServiceExists(svc, service.Name, service.Cluster); status == "ACTIVE" {
+		err := UpdateServiceToZeroCount(svc, service.Name, service.Cluster)
+		if err != nil {
+			return err
+		}
 	}
 	_, err := svc.DeleteService(context.TODO(), &ecs.DeleteServiceInput{
-		Service: &serviceName,
-		Cluster: &clusterName,
+		Service: &service.Name,
+		Cluster: &service.Cluster,
+		Force:   aws.Bool(true),
 	})
 	if err != nil {
-		log.Fatalf("Unable to delete service: %v", err)
+		return fmt.Errorf("unable to delete service: %v", err)
 	}
 	log.Printf("Service deleted")
+	// image and service are of same name
+	DeleteLoadBalancerARN(elbSvc, &service.LoadBalancerARN)
+	err = DeleteTaskDefination(svc, service.Cluster, service.Name)
+	if err != nil {
+		return err
+	}
 
-	DeleteLoadBalancer(elbSvc, Image)
-	DeleteTaskDefination(svc, clusterName, Image)
-	// DeleteTargetGroup(_)
+	err = DeleteTargetGroup(elbSvc, &service.TargetGroupARN)
+	if err != nil {
+		return err
+	}
+	log.Printf("Target group deleted")
+	log.Printf("Service %s deleted", service.Name)
+	return nil
+
 }
-func UpdateServiceToZeroCount(svc *ecs.Client, serviceName string, clusterName string) {
+func UpdateServiceToZeroCount(svc *ecs.Client, serviceName string, clusterName string) error {
 	_, err := svc.UpdateService(context.TODO(), &ecs.UpdateServiceInput{
 		Service:            &serviceName,
 		Cluster:            &clusterName,
@@ -151,8 +168,9 @@ func UpdateServiceToZeroCount(svc *ecs.Client, serviceName string, clusterName s
 		DesiredCount:       aws.Int32(0),
 	})
 	if err != nil {
-		log.Fatalf("Unable to update service to 0: %v", err)
+		return fmt.Errorf("unable to update service to 0: %v", err)
 	} else {
 		log.Printf("Service updated to 0")
 	}
+	return nil
 }

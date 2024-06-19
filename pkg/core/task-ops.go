@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -13,7 +14,7 @@ import (
 // creates a new task defination
 // if the task defination with the same faily exists,
 // it makes a new revision on it.
-func CreateTaskDefinition(svc *ecs.Client, UserName string, Image string, Port int32, Environment []types.KeyValuePair) {
+func CreateTaskDefinition(svc *ecs.Client, UserName string, Image string, Port int32, Environment []types.KeyValuePair) error {
 	// create task definition
 
 	Essential := true
@@ -25,7 +26,7 @@ func CreateTaskDefinition(svc *ecs.Client, UserName string, Image string, Port i
 	portName := containerName + "-" + strconv.Itoa(int(Port))
 	// Ensure port mapping name matches the expected pattern
 	if !isValidPortMappingName(portName) {
-		log.Fatalf("Invalid port mapping name: %v", portName)
+		return fmt.Errorf("Invalid port mapping name: %v", portName)
 	}
 
 	respTask, err := svc.RegisterTaskDefinition(context.TODO(), &ecs.RegisterTaskDefinitionInput{
@@ -54,10 +55,10 @@ func CreateTaskDefinition(svc *ecs.Client, UserName string, Image string, Port i
 		Family: &Family,
 	})
 	if err != nil {
-		log.Fatalf("Error creating task definition, %v", err)
+		return fmt.Errorf("error creating task definition, %v", err)
 	}
 	log.Printf("Task definition created: %v", *respTask.TaskDefinition.TaskDefinitionArn)
-
+	return nil
 }
 
 // Check if the port mapping name is valid
@@ -70,29 +71,33 @@ func isValidPortMappingName(name string) bool {
 
 // function deregisters all the revisions of a task defination
 // and then deletes the task defination
-func DeleteTaskDefination(svc *ecs.Client, UserName string, Image string) {
+func DeleteTaskDefination(svc *ecs.Client, UserName string, Image string) error {
 	// delete task definition
 
 	Family := generateName(UserName, Image, "task")
 	log.Printf("Deleting task definition for %v", Family)
 
-	revisions := FindRevisions(svc, Family)
+	revisions, err := FindRevisions(svc, Family)
+	if err != nil {
+		return fmt.Errorf("error finding task definition revisions, %v", err)
+	}
 
 	for _, taskARN := range revisions {
 		_, err := svc.DeregisterTaskDefinition(context.TODO(), &ecs.DeregisterTaskDefinitionInput{
 			TaskDefinition: &taskARN,
 		})
 		if err != nil {
-			log.Fatalf("Error deregistering task definition, %v", err)
+			return fmt.Errorf("error deregistering task definition, %v", err)
 		} else {
 			log.Printf("Task definition deregistered: %v", taskARN)
 			_, err := svc.DeleteTaskDefinitions(context.TODO(), &ecs.DeleteTaskDefinitionsInput{
 				TaskDefinitions: []string{taskARN},
 			})
 			if err != nil {
-				log.Fatalf("Error deleting task definition, %v", err)
+				return fmt.Errorf("error deleting task definition, %v", err)
 			}
 			log.Printf("Task definition deleted: %v", taskARN)
+
 		}
 
 	}
@@ -101,11 +106,12 @@ func DeleteTaskDefination(svc *ecs.Client, UserName string, Image string) {
 		TaskDefinitions: []string{Family},
 	})
 	if err2 != nil {
-		log.Fatalf("Error deleting task definition, %v", err2)
+		return fmt.Errorf("error deleting task definition, %v", err2)
 	}
 	log.Printf("Task definition deleted: %v", Family)
+	return nil
 }
-func FindRevisions(svc *ecs.Client, Family string) []string {
+func FindRevisions(svc *ecs.Client, Family string) ([]string, error) {
 	// find task definition revisions
 
 	log.Printf("Finding task definition revisions for %v", Family)
@@ -113,8 +119,8 @@ func FindRevisions(svc *ecs.Client, Family string) []string {
 		FamilyPrefix: &Family,
 	})
 	if err != nil {
-		log.Fatalf("Error finding task definition revisions, %v", err)
+		return nil, fmt.Errorf("error finding task definition revisions, %v", err)
 	}
 	log.Printf("Task definition revisions found: %v", len(resp.TaskDefinitionArns))
-	return (resp.TaskDefinitionArns)
+	return (resp.TaskDefinitionArns), nil
 }
