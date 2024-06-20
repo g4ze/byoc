@@ -110,7 +110,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	}, nil
 }
 
-func ServiceExists(svc *ecs.Client, serviceName string, clusterName string) (bool, any /*string for status*/, error) {
+func ServiceExists(svc *ecs.Client, serviceName string, clusterName string) (bool, string /*string for status*/, error) {
 	input := &ecs.DescribeServicesInput{
 		Services: []string{serviceName},
 		Cluster:  aws.String(clusterName),
@@ -119,24 +119,28 @@ func ServiceExists(svc *ecs.Client, serviceName string, clusterName string) (boo
 	result, err := svc.DescribeServices(context.TODO(), input)
 	if err != nil {
 		log.Printf("Error describing service: %v", err)
-		return false, nil, err
+		return false, "", err
 	}
 
 	if len(result.Services) == 0 {
-		return false, nil, nil
+		return false, "", nil
 	}
 	log.Printf("service is %v", *result.Services[0].ServiceName)
 
 	return true, *result.Services[0].Status, nil
 }
 func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Service) error {
-	if _, status, _ := ServiceExists(svc, service.Name, service.Cluster); status == "ACTIVE" {
+	_, status, err := ServiceExists(svc, service.Name, service.Cluster)
+	if err != nil {
+		return err
+	}
+	if status == "ACTIVE" {
 		err := UpdateServiceToZeroCount(svc, service.Name, service.Cluster)
 		if err != nil {
 			return err
 		}
 	}
-	_, err := svc.DeleteService(context.TODO(), &ecs.DeleteServiceInput{
+	_, err = svc.DeleteService(context.TODO(), &ecs.DeleteServiceInput{
 		Service: &service.Name,
 		Cluster: &service.Cluster,
 		Force:   aws.Bool(true),
@@ -146,7 +150,10 @@ func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Serv
 	}
 	log.Printf("Service deleted")
 	// image and service are of same name
-	DeleteLoadBalancerARN(elbSvc, &service.LoadBalancerARN)
+	err = DeleteLoadBalancerARN(elbSvc, &service.LoadBalancerARN)
+	if err != nil {
+		return err
+	}
 	err = DeleteTaskDefination(svc, service.Cluster, service.Name)
 	if err != nil {
 		return err
