@@ -15,8 +15,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// deletes the container deployed
 func DeleteContainerDeployment(service *types.Service) error {
-	// delete container
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)

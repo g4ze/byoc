@@ -20,4 +20,5 @@ type Service struct {
 	DesiredCount    int32  `json:"desiredCount"`
 	Cluster         string `json:"cluster"`
 	Image           string `json:"image"`
+	Slug            string `json:"slug"`
 }

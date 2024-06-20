@@ -32,6 +32,7 @@ func InsertService(Service *types.Service, userName string) error {
 		db.Service.DesiredCount.Set(int(Service.DesiredCount)),
 		db.Service.Cluster.Set(Service.Cluster),
 		db.Service.Image.Set(Service.Image),
+		db.Service.Slug.Set(Service.Slug),
 		db.Service.User.Link(
 			db.User.UserName.Equals(userName),
 		),

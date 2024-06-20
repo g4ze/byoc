@@ -10,11 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/g4ze/byoc/pkg/core"
-	"github.com/g4ze/byoc/pkg/database"
 	byocTypes "github.com/g4ze/byoc/pkg/types"
 	"github.com/joho/godotenv"
+	"github.com/sio/coolname"
 )
 
+// Deploy the container
 func Deploy_container(UserName string, Image string, Port int32, Environment map[string]string) (*byocTypes.Service, error) {
 
 	// KeyValuePair
@@ -54,11 +55,15 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	if err != nil {
 		return nil, err
 	}
-
-	err = database.InsertService(service, UserName)
+	service.Slug, err = GenerateSlug(UserName)
 	if err != nil {
 		return nil, err
 	}
 	return service, nil
 
+}
+func GenerateSlug(UserName string) (string, error) {
+	slug, err := coolname.SlugN(3)
+	slug += "-" + UserName
+	return slug, err
 }

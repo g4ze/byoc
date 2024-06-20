@@ -22,3 +22,4 @@ Everytime model is changed, migrate your database and re-generate your prisma co
 `
 docker run -e POSTGRES_PASSWORD=mysecretpassword  -p 5432:5432 -v ./data:/var/lib/postgresql/data --name byoc-postgres -d postgres
 `
+`docker run --name pgsql-dev -e POSTGRES_PASSWORD=Welcome -p 5432:5432 postgres:latest`

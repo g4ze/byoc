@@ -30,8 +30,10 @@ model Service {
     DesiredCount    Int
     cluster         String
     image           String
+    // slug and lbdns is hardcoded into the query
+    // string of the reverse proxy het dns fuctionality
+    Slug        String
     user            User     @relation(fields: [userName], references: [userName])
-   
     userName        String
     // logging functionality still in development
     logs            String?
