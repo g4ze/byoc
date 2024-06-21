@@ -25,12 +25,16 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 
 		log.Printf("Service %s already exists. Skipping creation.", serviceName)
 		if serviceStatus == "ACTIVE" {
-			log.Printf("Service is active, updating desired count to 2")
+			log.Printf("Service is active, updating task definition")
+			err = CreateTaskDefinition(svc, UserName, Image, Port, Environment)
+			if err != nil {
+				return nil, fmt.Errorf("error creating task definition: %v", err)
+			}
+			log.Printf("Redeploying service %s", serviceName)
 			_, err := svc.UpdateService(context.TODO(), &ecs.UpdateServiceInput{
 				Service:            &serviceName,
 				Cluster:            &UserName,
 				ForceNewDeployment: true,
-				DesiredCount:       aws.Int32(2),
 			})
 			if err != nil {
 				return nil, fmt.Errorf("unable to update service: %+v", err)
@@ -60,7 +64,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create target group: %v", err)
 	}
-	err = CreateListener(elbSvc, loadBalancerArn, targetGroupArn)
+	EventListenerARN, err := CreateListener(elbSvc, loadBalancerArn, targetGroupArn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create listener: %v", err)
 	}
@@ -110,15 +114,16 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 
 	log.Printf("Service created with status: %v", *resp.Service.Status)
 	return &byocTypes.Service{
-		Name:            serviceName,
-		Arn:             *resp.Service.ServiceArn,
-		TaskFamily:      Family,
-		LoadBalancerARN: *loadBalancerArn,
-		TargetGroupARN:  *targetGroupArn,
-		LoadbalancerDNS: *lbdns,
-		DesiredCount:    desiredCount,
-		Cluster:         UserName,
-		Image:           Image,
+		Name:             serviceName,
+		Arn:              *resp.Service.ServiceArn,
+		TaskFamily:       Family,
+		LoadBalancerARN:  *loadBalancerArn,
+		TargetGroupARN:   *targetGroupArn,
+		LoadbalancerDNS:  *lbdns,
+		DesiredCount:     desiredCount,
+		Cluster:          UserName,
+		Image:            Image,
+		EventListenerARN: EventListenerARN,
 	}, nil
 }
 
@@ -164,6 +169,12 @@ func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Serv
 	// image and service are of same name
 	if service.LoadBalancerARN != "" {
 		err = DeleteLoadBalancerARN(elbSvc, &service.LoadBalancerARN)
+		if err != nil {
+			return err
+		}
+	}
+	if service.EventListenerARN != "" {
+		err = DeleteListener(elbSvc, &service.EventListenerARN)
 		if err != nil {
 			return err
 		}

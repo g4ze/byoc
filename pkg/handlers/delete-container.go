@@ -38,8 +38,9 @@ func Delete_Container(c *gin.Context) {
 	// 	c.JSON(404, gin.H{"error": "More than one service with same name received. Please contact support"})
 	// 	return
 	// }
-	// delete container\
-	controllers.DeleteContainerDeployment(&types.Service{
+	// delete container
+
+	err = controllers.DeleteContainerDeployment(&types.Service{
 		Name:            service[0].Name,
 		Arn:             service[0].Arn,
 		TaskFamily:      service[0].TaskFamily,
@@ -50,5 +51,10 @@ func Delete_Container(c *gin.Context) {
 		Cluster:         service[0].Cluster,
 		Image:           service[0].Image,
 	})
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "Container deleted successfully"})
 
 }

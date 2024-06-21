@@ -1,11 +1,13 @@
 package core
 
 import (
+	"log"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go/service/elbv2"
 )
 
-func CreateListener(elbSvc *elbv2.ELBV2, loadBalancerArn *string, targetGroupArn *string) error {
+func CreateListener(elbSvc *elbv2.ELBV2, loadBalancerArn *string, targetGroupArn *string) (string, error) {
 	listenerInput := &elbv2.CreateListenerInput{
 		LoadBalancerArn: loadBalancerArn,
 		Protocol:        aws.String("HTTP"),
@@ -24,14 +26,15 @@ func CreateListener(elbSvc *elbv2.ELBV2, loadBalancerArn *string, targetGroupArn
 		},
 	}
 
-	_, err := elbSvc.CreateListener(listenerInput)
-	return err
+	listener, err := elbSvc.CreateListener(listenerInput)
+	return *listener.Listeners[0].ListenerArn, err
 }
 
 // start using ars you stupid human
-// func deleteListener(elbSvc *elbv2.ELBV2, listenerArn *string) error {
-// 	_, err := elbSvc.DeleteListener(&elbv2.DeleteListenerInput{
-// 		ListenerArn: listenerArn,
-// 	})
-// 	return err
-// }
+func DeleteListener(elbSvc *elbv2.ELBV2, listenerArn *string) error {
+	log.Printf("Deleting listener %s", *listenerArn)
+	_, err := elbSvc.DeleteListener(&elbv2.DeleteListenerInput{
+		ListenerArn: listenerArn,
+	})
+	return err
+}
