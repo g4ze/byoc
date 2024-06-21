@@ -55,6 +55,11 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	if err != nil {
 		return nil, err
 	}
+	// means the service was updated
+	// with new task and deployed
+	if service == nil {
+		return nil, nil
+	}
 
 	service.Slug, err = GenerateSlug(UserName)
 	if err != nil {

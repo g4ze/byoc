@@ -40,9 +40,9 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 				return nil, fmt.Errorf("unable to update service: %+v", err)
 
 			}
-		}
-		if serviceStatus == "INACTIVE" {
-			log.Printf("Service is inactive, deleting service")
+			return nil, nil
+		} else {
+			log.Printf("Service is %v, deleting service", serviceStatus)
 			err := DeleteService(elbSvc, svc, &byocTypes.Service{
 				Name:    serviceName,
 				Cluster: UserName,
