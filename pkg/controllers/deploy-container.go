@@ -55,6 +55,7 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	if err != nil {
 		return nil, err
 	}
+
 	service.Slug, err = GenerateSlug(UserName)
 	if err != nil {
 		return nil, err

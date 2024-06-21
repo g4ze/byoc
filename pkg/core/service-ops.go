@@ -22,8 +22,10 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 		return nil, fmt.Errorf("error checking if service esists %+v", err)
 	}
 	if isService {
+
 		log.Printf("Service %s already exists. Skipping creation.", serviceName)
 		if serviceStatus == "ACTIVE" {
+			log.Printf("Service is active, updating desired count to 2")
 			_, err := svc.UpdateService(context.TODO(), &ecs.UpdateServiceInput{
 				Service:            &serviceName,
 				Cluster:            &UserName,
@@ -35,9 +37,19 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 
 			}
 		}
+		if serviceStatus == "INACTIVE" {
+			log.Printf("Service is inactive, deleting service")
+			err := DeleteService(elbSvc, svc, &byocTypes.Service{
+				Name:    serviceName,
+				Cluster: UserName,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("unable to delete service: %+v", err)
+			}
 
-		return nil, nil
+		}
 	}
+	log.Printf("Creating service %s", serviceName)
 	// this needs a change, we cant keep creating load balancers
 	// based on the image name, we need to create a unique name
 	loadBalancerArn, lbdns, err := CreateLoadBalancer(elbSvc, Image)
@@ -139,7 +151,7 @@ func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Serv
 		if err != nil {
 			return err
 		}
-	}
+	} // else is inactive/ draining
 	_, err = svc.DeleteService(context.TODO(), &ecs.DeleteServiceInput{
 		Service: &service.Name,
 		Cluster: &service.Cluster,
@@ -148,23 +160,27 @@ func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Serv
 	if err != nil {
 		return fmt.Errorf("unable to delete service: %v", err)
 	}
-	log.Printf("Service deleted")
+	log.Printf("Service %v deleted from AWS", service.Name)
 	// image and service are of same name
-	err = DeleteLoadBalancerARN(elbSvc, &service.LoadBalancerARN)
-	if err != nil {
-		return err
+	if service.LoadBalancerARN != "" {
+		err = DeleteLoadBalancerARN(elbSvc, &service.LoadBalancerARN)
+		if err != nil {
+			return err
+		}
 	}
-	err = DeleteTaskDefination(svc, service.Cluster, service.Name)
-	if err != nil {
-		return err
+	if service.TargetGroupARN != "" {
+		err = DeleteTaskDefination(svc, service.Cluster, service.Name)
+		if err != nil {
+			return err
+		}
 	}
-
-	err = DeleteTargetGroup(elbSvc, &service.TargetGroupARN)
-	if err != nil {
-		return err
+	if service.TargetGroupARN != "" {
+		err = DeleteTargetGroup(elbSvc, &service.TargetGroupARN)
+		if err != nil {
+			return err
+		}
 	}
-	log.Printf("Target group deleted")
-	log.Printf("Service %s deleted", service.Name)
+	log.Printf("Service %v's dependencies deleted from AWS", service.Name)
 	return nil
 
 }

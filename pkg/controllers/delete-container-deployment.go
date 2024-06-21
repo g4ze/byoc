@@ -29,18 +29,25 @@ func DeleteContainerDeployment(service *types.Service) error {
 	svc := ecs.NewFromConfig(cfg)
 	sess := session.Must(session.NewSession())
 	elbSvc := elbv2.New(sess)
+	// #1-remove service from AWS
 	err = core.DeleteService(elbSvc, svc, service)
 	if err != nil {
 		return fmt.Errorf("error deleting task definition: %v", err)
 	}
-	log.Printf("Service %s deleted", service.Name)
+	log.Println("Service deletion successful")
+	// #2-remove cluster from AWS if no services
 	err = core.DeleteCluster(svc, service.Cluster)
 	if err != nil {
 		log.Println("Can't delete cluster")
 	}
-	database.DeleteService(types.DeleteContainer{
+	// #3-remove service from database
+	err = database.DeleteService(types.DeleteContainer{
 		Image:    service.Image,
 		UserName: service.Cluster,
 	})
+	if err != nil {
+		return fmt.Errorf("error deleting service from database: %v", err)
+	}
+
 	return nil
 }

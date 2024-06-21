@@ -63,12 +63,12 @@ func GetService(request types.DeleteContainer) ([]db.ServiceModel, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("resp: %+v", resp)
+	log.Printf("get services resp: %+v", resp)
 	return resp, nil
 }
 func DeleteService(request types.DeleteContainer) error {
 	// delete service
-	log.Printf("Deleting service %s", request.Image)
+	log.Printf("Deleting service from database: %s", request.Image)
 	client := db.NewClient()
 	if err := client.Prisma.Connect(); err != nil {
 		return err
@@ -79,13 +79,36 @@ func DeleteService(request types.DeleteContainer) error {
 		}
 	}()
 	ctx := context.Background()
-	_, err := client.Service.FindMany(
+	resp, err := client.Service.FindMany(
 		db.Service.Image.Equals(request.Image),
 		db.Service.UserName.Equals(request.UserName),
 	).Delete().Exec(ctx)
 	if err != nil {
 		return err
 	}
+	log.Printf("resp of delete service: %+v", resp)
 	log.Printf("Service %s deleted", request.Image)
 	return nil
+}
+func GetAllServices(userName string) ([]db.ServiceModel, error) {
+	// get all services
+	log.Printf("Getting all services for %s", userName)
+	client := db.NewClient()
+	if err := client.Prisma.Connect(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := client.Prisma.Disconnect(); err != nil {
+			panic(err)
+		}
+	}()
+	ctx := context.Background()
+	resp, err := client.Service.FindMany(
+		db.Service.UserName.Equals(userName),
+	).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("get all services resp: %+v", resp)
+	return resp, nil
 }

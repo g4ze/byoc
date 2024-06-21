@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/g4ze/byoc/pkg/database"
 
@@ -17,11 +18,26 @@ func Delete_Container(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+	log.Printf("Request: %+v", request)
+	if request.Image == "" {
+		c.JSON(400, gin.H{"error": "Image name is required"})
+		return
+	}
+
 	service, err := database.GetService(request)
+
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
+	if len(service) == 0 {
+		c.JSON(404, gin.H{"error": "Service not found"})
+		return
+	}
+	// if len(service) != 1 {
+	// 	c.JSON(404, gin.H{"error": "More than one service with same name received. Please contact support"})
+	// 	return
+	// }
 	// delete container\
 	controllers.DeleteContainerDeployment(&types.Service{
 		Name:            service[0].Name,

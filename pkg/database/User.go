@@ -52,7 +52,7 @@ func ValidateUniqueUserName(client *db.PrismaClient, ctx context.Context, UserNa
 	if err != nil {
 		return false, err
 	}
-	log.Printf("resp: %+v", resp)
+	log.Printf("resp validate user name: %+v", resp)
 	if len(resp) > 0 {
 		return false, nil
 	}

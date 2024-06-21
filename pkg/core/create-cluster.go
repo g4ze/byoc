@@ -42,7 +42,7 @@ func DeleteCluster(svc *ecs.Client, clusterName string) error {
 	if err != nil {
 		return fmt.Errorf("unable to delete cluster, %v", err)
 	}
-	log.Println("Cluster deleted")
+	log.Printf("Cluster %v deleted", clusterName)
 	return nil
 }
 
