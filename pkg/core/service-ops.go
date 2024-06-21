@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -179,12 +180,14 @@ func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Serv
 			return err
 		}
 	}
-	if service.TargetGroupARN != "" {
+	time.Sleep(10 * time.Second)
+	if service.TaskFamily != "" {
 		err = DeleteTaskDefination(svc, service.Cluster, service.Name)
 		if err != nil {
 			return err
 		}
 	}
+	time.Sleep(10 * time.Second)
 	if service.TargetGroupARN != "" {
 		err = DeleteTargetGroup(elbSvc, &service.TargetGroupARN)
 		if err != nil {

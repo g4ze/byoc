@@ -58,6 +58,7 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	// means the service was updated
 	// with new task and deployed
 	if service == nil {
+		log.Printf("service=nil")
 		return nil, nil
 	}
 
@@ -65,6 +66,7 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("returning service: %+v", service)
 	return service, nil
 
 }

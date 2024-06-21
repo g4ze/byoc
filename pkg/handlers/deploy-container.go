@@ -46,6 +46,11 @@ func Deploy_Container(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Service already exists, deployed with new image"})
 		return
 	}
-	database.InsertService(resp, reqPayload.UserName)
+	log.Printf("Inserting service into database: %v", resp.Name)
+	err = database.InsertService(resp, reqPayload.UserName)
+	if err != nil {
+		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	c.JSON(http.StatusOK, resp)
 }

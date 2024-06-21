@@ -50,12 +50,15 @@ func TestTaskFunctions(t *testing.T) {
 	svc := ecs.NewFromConfig(cfg)
 	log.Printf("Creating task definition")
 	// CreateTaskDefinition(svc, "test", "test", 80, nil)
-	err = CreateTaskDefinition(svc, "test", "test", 80, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err = CreateTaskDefinition(svc, "test", "test", 80, nil)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	// CreateTaskDefinition(svc, "test", "test", 80, nil)
 	// DeleteTaskDefination(svc, "test", "test")
+	DeleteTaskDefination(svc, "test_user", "docker.io/g4ze/cattodb:latest")
+	DeleteTaskDefination(svc, "test_user2", "docker.io/g4ze/cattodb:latest")
+	DeleteTaskDefination(svc, "test_user1", "docker.io/g4ze/cattodb:latest")
 }
 
 func TestCluster(t *testing.T) {
@@ -115,4 +118,24 @@ func TestService(t *testing.T) {
 	DeleteService(elbSvc, svc, service)
 	time.Sleep(10 * time.Second)
 	DeleteCluster(svc, "test")
+}
+func TestDeleteService(t *testing.T) {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
+	svc := ecs.NewFromConfig(cfg)
+	_, err = svc.DeleteService(context.TODO(), &ecs.DeleteServiceInput{
+		Service: aws.String("docker-io-g4ze-cattodb-latest"),
+		Cluster: aws.String("test_user"),
+		Force:   aws.Bool(true),
+	})
+	if err != nil {
+		log.Fatalf("Error deleting service: %v", err)
+	}
+	log.Println("Service deleted")
 }
