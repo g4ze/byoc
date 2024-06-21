@@ -30,9 +30,11 @@ func InsertService(Service *types.Service, userName string) error {
 		db.Service.TargetGroupARN.Set(Service.TargetGroupARN),
 		db.Service.LoadbalancerDNS.Set(Service.LoadbalancerDNS),
 		db.Service.DesiredCount.Set(int(Service.DesiredCount)),
+		// db.Service.DesiredCount.Set(int(Service.DesiredCount)),
 		db.Service.Cluster.Set(Service.Cluster),
 		db.Service.Image.Set(Service.Image),
 		db.Service.Slug.Set(Service.Slug),
+		db.Service.EventListenerARN.Set(Service.EventListenerARN),
 		db.Service.User.Link(
 			db.User.UserName.Equals(userName),
 		),

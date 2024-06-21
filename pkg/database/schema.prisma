@@ -1,7 +1,7 @@
 datasource db {
     // could be postgresql or mysql
     provider = "postgresql"
-    url      = env("DATABASE_URL")
+    url      = "postgresql://postgres:Welcome@localhost:5432/postgres"
 }
 
 generator db {
@@ -27,12 +27,13 @@ model Service {
     loadBalancerARN String
     targetGroupARN  String
     loadbalancerDNS String
-    DesiredCount    Int
+    desiredCount    Int
     cluster         String
     image           String
     // slug and lbdns is hardcoded into the query
     // string of the reverse proxy het dns fuctionality
-    Slug        String
+    slug        String @unique
+    eventListenerARN String
     user            User     @relation(fields: [userName], references: [userName])
     userName        String
     // logging functionality still in development
