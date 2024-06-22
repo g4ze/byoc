@@ -45,6 +45,28 @@ func InsertService(Service *types.Service, userName string) error {
 	log.Printf("Service %s created", Service.Name)
 	return nil
 }
+func GetServices(userName string) ([]db.ServiceModel, error) {
+	// get service
+	log.Printf("Getting services for %s", userName)
+	client := db.NewClient()
+	if err := client.Prisma.Connect(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := client.Prisma.Disconnect(); err != nil {
+			panic(err)
+		}
+	}()
+	ctx := context.Background()
+	resp, err := client.Service.FindMany(
+		db.Service.UserName.Equals(userName),
+	).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("get services resp: %+v", resp)
+	return resp, nil
+}
 func GetService(request types.DeleteContainer) ([]db.ServiceModel, error) {
 	// get service
 	log.Printf("Getting service %s", request.Image)
