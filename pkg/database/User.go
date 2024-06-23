@@ -40,7 +40,7 @@ func CreateUser(UserName string, Email string, Password string) error {
 		return err
 	}
 	result, _ := json.MarshalIndent(user, "", "  ")
-	log.Printf("created post: %s\n", result)
+	log.Printf("created user: %s\n", result)
 	log.Printf("post: %+v", user)
 	return nil
 }

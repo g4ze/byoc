@@ -1,8 +1,6 @@
 "use client";
-import Loading from "@/components/Loading";
 import { Field } from "@/components/Field";
 import { useRouter } from "next/navigation";
-
 import { useState } from "react";
 import { Heading } from "@/components/Heading";
 import { Button } from "@/components/Button";
@@ -11,10 +9,13 @@ export default function Login() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  // URL of the login endpoint
+  const loginEndpoint = "/login";
+  const hosturl ="http://localhost:2001";
   return (
     <section className="h-screen">
       <div className="flex justify-center items-center h-screen  ">
-        <div className="max-w-md w-full mx-auto">
+        <div className="max-w-md w-full mx-auto bg-black bg-opacity-30">
           <div className="rounded-lg shadow-lg p-8">
             <nav className="pb-3">
               <div className="container mx-auto flex items-center justify-between">
@@ -32,6 +33,7 @@ export default function Login() {
                   setUsername(e.target.value);
                 }}
               />
+              
               <Field
                 label="Password"
                 value="password"
@@ -40,14 +42,15 @@ export default function Login() {
                   setPassword(e.target.value);
                 }}
               />
+              
               <div className="flex items-center justify-between">
                 <Button
-                  label={"Sign In"}
+                  label={"Login"}
                   onClick={async () => {
+                    try{
                     const response = await fetch(
-                      "http://localhost:3000/api/v1/user/signin",
+                      hosturl+loginEndpoint,
                       {
-
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",
@@ -62,10 +65,15 @@ export default function Login() {
                       console.log("User signed in successfully");
                       const data = await response.json();
                       localStorage.setItem("token", data.token);
-                      navigate("/dashboard");
+                      router.push("/service");
                     } else {
+                      console.log("data", await response.json());
                       alert("Invalid username or password");
                     }
+                  }
+                  catch(e){
+                    console.log(e);
+                  }
                   }}
                 />
               </div>

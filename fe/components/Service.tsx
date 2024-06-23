@@ -1,3 +1,7 @@
-export default function Service(serviceName: string) {
-    return(<>hi from service page</>)
+export default function Service(service:Service) {
+    return(
+        <>
+        {service.name}
+        </>
+    )
 }

@@ -17,27 +17,27 @@ func Deploy_Container(c *gin.Context) {
 	// return response to client
 	type payload struct {
 		Image       string            `json:"image"`
-		UserName    string            `json:"userName"`
+		User        string            `json:"user"`
 		Port        int32             `json:"port"`
 		Environment map[string]string `json:"environment"`
 	}
 	// check if request payload matches the required payload
 	var reqPayload payload
-
+	log.Printf("Request body: %v", c.Request.Body)
 	err := json.NewDecoder(c.Request.Body).Decode(&reqPayload)
 	if err != nil {
-		http.Error(c.Writer, err.Error(), http.StatusBadRequest)
+		http.Error(c.Writer, err.Error()+"invalid boady", http.StatusBadRequest)
 		return
 	}
 	log.Printf("Received request to deploy container: %v", reqPayload)
 
 	// validate the request payload
-	if reqPayload.Image == "" || reqPayload.UserName == "" || (reqPayload.Port) == 0 {
+	if reqPayload.Image == "" || reqPayload.User == "" || (reqPayload.Port) == 0 {
 		http.Error(c.Writer, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	resp, err := controllers.Deploy_container(reqPayload.UserName, reqPayload.Image, reqPayload.Port, reqPayload.Environment)
+	resp, err := controllers.Deploy_container(reqPayload.User, reqPayload.Image, reqPayload.Port, reqPayload.Environment)
 	if err != nil {
 		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
@@ -47,7 +47,7 @@ func Deploy_Container(c *gin.Context) {
 		return
 	}
 	log.Printf("Inserting service into database: %v", resp.Name)
-	err = database.InsertService(resp, reqPayload.UserName)
+	err = database.InsertService(resp, reqPayload.User)
 	if err != nil {
 		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return

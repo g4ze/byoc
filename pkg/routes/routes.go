@@ -16,12 +16,12 @@ func Server() {
 	authRoutes := r.Group("/v1")
 	authRoutes.Use(middleware.JwtMiddleware())
 	r.Use(middleware.RateLimitMiddleware())
-	// 203 = user already exists
+	// 208 = user already exists
 	// 200 = fed
 	// 429 = too many requests
 	r.POST("/create-user", handlers.Create_User)
 	r.POST("/login", handlers.Login)
-
+	authRoutes.Use(cors.Default())
 	// Create a new group for routes that require JWT middleware
 	authRoutes.POST("/whoami", handlers.WhoAMI)
 	authRoutes.POST("/make-cluster", handlers.Make_Cluster)

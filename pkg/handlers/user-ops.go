@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/g4ze/byoc/pkg/database"
@@ -18,7 +19,9 @@ func Create_User(c *gin.Context) {
 		http.Error(c.Writer, err.Error(), http.StatusBadRequest)
 		return
 	}
+	log.Printf("user: %+v", user)
 	if err := database.CreateUser(user.UserName, user.Email, user.Password); err != nil {
+		log.Printf("Error creating user: %s", err.Error())
 		http.Error(c.Writer, err.Error(), http.StatusAlreadyReported)
 		return
 	}
