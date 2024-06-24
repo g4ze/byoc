@@ -3,19 +3,20 @@ import { Heading } from './Heading';
 import { Field } from './Field';
 import Image from 'next/image';
 import exclamationImg from '@/public/exclamation.png'
+import { Env } from '@/types';
+import { time } from 'console';
 
 const ServiceForm = () => {
     const env: Env = {
         'any':'any'
     }
   const [imageName, setImageName] = useState('');
-  const [port, setPort] = useState('0000');
+  const [port, setPort] = useState(0);
 //   const [env, setEnv] = useState(Env);
 //   const [region, setRegion] = useState('US East (Ohio)');
 
   const handleSubmit = (e:any) => {
     (async () => {
-        e.preventDefault();
         // Handle form submission logic here
         console.log(imageName, port);
         const resp=await fetch('http://localhost:2001/v1/deploy-container', {
@@ -25,8 +26,8 @@ const ServiceForm = () => {
                 'Authorization': 'Bearer ' + localStorage.getItem('token'),
             },
             'body': JSON.stringify({
-                'imageName': imageName,
-                'port': port,
+                'image': imageName.trim(),
+                'port': Number(port),
                 'env': env,
             }),
         });
@@ -44,8 +45,9 @@ return (
                 <input
                     type="text"
                     id="imageName"
-                    value={imageName}
-                    onChange={(e) => setImageName(e.target.value)}
+                    onChange={(e) => {setImageName(e.target.value)
+                        console.log(imageName)
+                    }}
                     placeholder="e.g., docker.io/library/nginx:latest"
                     className="text-sm w-full bg-transparent text-white px-3 py-2 focus:border-r-2 rounded  hover:shadow-[inset_-32px_0_32px_-15px_rgba(255,255,255,0.2)] transition-shadow duration-150 focus:outline-none focus:shadow-[inset_-32px_0_20px_-15px_rgba(255,255,255,0.2)] transition-shadow duration-300"/>
                 <p className="flex py-2 text-white text-sm">
@@ -57,8 +59,8 @@ return (
             <input
                     type="text"
                     id="port"
-                    onChange={(e) => setPort(e.target.value)}
-                    placeholder="0000"
+                    onChange={(e) => setPort(Number(e.target.value))}
+                    placeholder="e.g., 3000"
                     className="text-sm w-full bg-transparent text-white px-3 py-2 focus:border-r-2 rounded  hover:shadow-[inset_-32px_0_32px_-15px_rgba(255,255,255,0.2)] transition-shadow duration-150 focus:outline-none focus:shadow-[inset_-32px_0_20px_-15px_rgba(255,255,255,0.2)] transition-shadow duration-300"/>
                 
             </div>

@@ -11,17 +11,24 @@ func Server() {
 	r := gin.Default()
 
 	// Enable CORS
-	r.Use(cors.Default())
+
+	// With this custom configuration:
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your frontend URL
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+	config.ExposeHeaders = []string{"Content-Length"}
+	config.AllowCredentials = true
+	r.Use(cors.New(config))
 
 	authRoutes := r.Group("/v1")
-	authRoutes.Use(middleware.JwtMiddleware())
+	authRoutes.Use(cors.Default(), middleware.JwtMiddleware())
 	r.Use(middleware.RateLimitMiddleware())
 	// 208 = user already exists
 	// 200 = fed
 	// 429 = too many requests
 	r.POST("/create-user", handlers.Create_User)
 	r.POST("/login", handlers.Login)
-	authRoutes.Use(cors.Default())
 	// Create a new group for routes that require JWT middleware
 	authRoutes.POST("/whoami", handlers.WhoAMI)
 	authRoutes.POST("/make-cluster", handlers.Make_Cluster)

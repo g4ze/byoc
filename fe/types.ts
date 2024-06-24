@@ -23,7 +23,7 @@
 // }
 
 
-interface Service{
+export interface Service{
     id: string;
     createdAt: Date;
     name: string;
@@ -41,6 +41,6 @@ interface Service{
     userName: string;
     logs: string;
 }
-interface Env {
+export interface Env {
     [variableName: string]: string;
 }
