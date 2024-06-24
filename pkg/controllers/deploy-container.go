@@ -16,12 +16,12 @@ import (
 )
 
 // Deploy the container
-func Deploy_container(UserName string, Image string, Port int32, Environment map[string]string) (*byocTypes.Service, error) {
+func Deploy_container(newDeployment *byocTypes.DeployContainerPayload) (*byocTypes.Service, error) {
 
 	// KeyValuePair
 	Environment2 := func() []types.KeyValuePair {
 		var Environment2 []types.KeyValuePair
-		for key, value := range Environment {
+		for key, value := range newDeployment.Environment {
 			Environment2 = append(Environment2, types.KeyValuePair{
 				Name:  &key,
 				Value: &value,
@@ -41,17 +41,17 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 	svc := ecs.NewFromConfig(cfg)
 	sess := session.Must(session.NewSession())
 	elbSvc := elbv2.New(sess)
-	err = core.CreateCluster(svc, UserName)
+	err = core.CreateCluster(svc, newDeployment.UserName)
 	if err != nil {
 		return nil, err
 	}
 
-	err = core.CreateTaskDefinition(svc, UserName, Image, Port, Environment2)
+	err = core.CreateTaskDefinition(svc, newDeployment.UserName, newDeployment.Image, int32(newDeployment.Port), Environment2)
 	if err != nil {
 		return nil, err
 	}
 
-	service, err := core.CreateService(svc, elbSvc, UserName, Image, Port, Environment2)
+	service, err := core.CreateService(svc, elbSvc, newDeployment.UserName, newDeployment.Image, int32(newDeployment.Port), Environment2, newDeployment.DeplomentName)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func Deploy_container(UserName string, Image string, Port int32, Environment map
 		return nil, nil
 	}
 
-	service.Slug, err = GenerateSlug(UserName)
+	service.Slug, err = GenerateSlug(newDeployment.UserName)
 	if err != nil {
 		return nil, err
 	}

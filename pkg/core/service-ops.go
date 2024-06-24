@@ -13,7 +13,7 @@ import (
 	byocTypes "github.com/g4ze/byoc/pkg/types"
 )
 
-func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image string, Port int32, Environment []types.KeyValuePair) (*byocTypes.Service, error) {
+func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image string, Port int32, Environment []types.KeyValuePair, DeploymentName string) (*byocTypes.Service, error) {
 	var desiredCount int32 = 2
 	containerName := generateName(UserName, Image, "container")
 	serviceName := generateNameFromImage(Image)
@@ -125,6 +125,7 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 		Cluster:          UserName,
 		Image:            Image,
 		EventListenerARN: EventListenerARN,
+		DeploymentName:   DeploymentName,
 	}, nil
 }
 

@@ -38,4 +38,5 @@ model Service {
     userName        String
     // logging functionality still in development
     logs            String?
+    deploymentName   String @default("default")
 }

@@ -22,4 +22,5 @@ type Service struct {
 	Image            string `json:"image"`
 	Slug             string `json:"slug"`
 	EventListenerARN string `json:"eventListenerARN"`
+	DeploymentName   string `json:"deploymentName"`
 }

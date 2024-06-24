@@ -40,6 +40,7 @@ export interface Service{
     user: string;
     userName: string;
     logs: string;
+    deploymentName: string;
 }
 export interface Env {
     [variableName: string]: string;

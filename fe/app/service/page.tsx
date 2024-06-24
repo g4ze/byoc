@@ -80,12 +80,12 @@ export default function ServicePage() {
                             <li key={service.id} className="py-2 px-4">
                                 {activeService === service.id ? (
                                     <ActiveTaskButton
-                                        label={service.name}
+                                        label={service.deploymentName}
                                         onClick={() => scrollToService(service.name)}
                                     />
                                 ) : (
                                     <TabButton
-                                        label={service.name}
+                                        label={service.deploymentName}
                                         onClick={() => scrollToService(service.name)}
                                     />
                                 )}

@@ -38,6 +38,7 @@ func InsertService(Service *types.Service, userName string) error {
 		db.Service.User.Link(
 			db.User.UserName.Equals(userName),
 		),
+		db.Service.DeploymentName.Set(Service.DeploymentName),
 	).Exec(ctx)
 	if err != nil {
 		return err

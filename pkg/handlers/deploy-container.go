@@ -7,6 +7,7 @@ import (
 
 	"github.com/g4ze/byoc/pkg/controllers"
 	"github.com/g4ze/byoc/pkg/database"
+	"github.com/g4ze/byoc/pkg/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +17,7 @@ func Deploy_Container(c *gin.Context) {
 	// return response to client
 
 	// check if request payload matches the required payload
-	var reqPayload DeployContainerPayload
+	var reqPayload types.DeployContainerPayload
 
 	err := json.NewDecoder(c.Request.Body).Decode(&reqPayload)
 	if err != nil {
@@ -26,14 +27,13 @@ func Deploy_Container(c *gin.Context) {
 	// extracting user name from the auth add on param
 	reqPayload.UserName = c.Params.ByName("user")
 	log.Printf("Received request to deploy container: %v", reqPayload)
-
+	log.Printf("Deployment Name: %v", reqPayload.DeploymentName)
 	// validate the request payload
 	if reqPayload.Image == "" || reqPayload.UserName == "" || (reqPayload.Port) == 0 {
 		http.Error(c.Writer, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
-	Int32Port := int32(reqPayload.Port)
-	resp, err := controllers.Deploy_container(reqPayload.UserName, reqPayload.Image, Int32Port, reqPayload.Environment)
+	resp, err := controllers.Deploy_container(&reqPayload)
 	if err != nil {
 		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
