@@ -95,6 +95,7 @@ func main() {
 	p := &Proxy{target: target, proxy: proxy}
 
 	// Start the HTTP server and register the Proxy instance as the handler
+	log.Printf("Server listening on port 3001")
 	err = http.ListenAndServe(":3001", p)
 	if err != nil {
 		panic(err)

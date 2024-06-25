@@ -12,7 +12,7 @@ const ServiceForm = () => {
 
   const customConfig: Config = {
     dictionaries: [adjectives, animals],
-    separator: '_',
+    separator: ' ',
     length: 2,
   };
     const env: Env = {
@@ -21,12 +21,16 @@ const ServiceForm = () => {
   const [imageName, setImageName] = useState('');
   const [port, setPort] = useState(0);
   const [deploymentName, setDeploymentName] = useState(uniqueNamesGenerator(customConfig));
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 //   const [env, setEnv] = useState(Env);
 //   const [region, setRegion] = useState('US East (Ohio)');
 
   const handleSubmit = (e:any) => {
     (async () => {
         // Handle form submission logic here
+        setIsLoading(true);
+        setError('');
         console.log(imageName, port);
         const resp=await fetch('http://localhost:2001/v1/deploy-container', {
             'method': 'POST',
@@ -59,7 +63,7 @@ return (
                     placeholder="e.g., docker.io/library/nginx:latest"
                     className="text-4xl font-bold w-full bg-transparent text-white px-3 py-2 focus:border-r-2 rounded  hover:shadow-[inset_-32px_0_32px_-15px_rgba(255,255,255,0.2)] transition-shadow duration-150 focus:outline-none focus:shadow-[inset_-32px_0_20px_-15px_rgba(255,255,255,0.2)] transition-shadow duration-300"/>
                
-        <form onSubmit={handleSubmit}>
+        <form>
             <div >
                 <Heading label={'Image Link'} className="font-bold text-1xl py-2 text-white"/>
                 <input
@@ -90,12 +94,20 @@ return (
             
             
             <div className="button-group py-2">
-                <button type="submit"
-                 className="p-2 border-2 rounded mx-2 hover:bg-blue-500 hover:border-none text-white font-bold py-2 px-4 rounded"
-                 onClick={handleSubmit}
-                 >Create Deployment
-                 </button>
-            </div>
+                    <button 
+                        type="submit"
+                        className="p-2 border-2 rounded mx-2 hover:bg-blue-500 hover:border-none text-white font-bold py-2 px-4 rounded"
+                        disabled={isLoading}
+                        onClick={handleSubmit}
+                    >
+                        {isLoading ? 'Creating...' : 'Create Deployment'}
+                    </button>
+                </div>
+                {error && (
+                    <div className="text-red-500 mt-2">
+                        {error}
+                    </div>
+                )}
         </form>
     </div>
 );

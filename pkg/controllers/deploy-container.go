@@ -51,7 +51,7 @@ func Deploy_container(newDeployment *byocTypes.DeployContainerPayload) (*byocTyp
 		return nil, err
 	}
 
-	service, err := core.CreateService(svc, elbSvc, newDeployment.UserName, newDeployment.Image, int32(newDeployment.Port), Environment2, newDeployment.DeplomentName)
+	service, err := core.CreateService(svc, elbSvc, newDeployment.UserName, newDeployment.Image, int32(newDeployment.Port), Environment2, newDeployment.DeploymentName)
 	if err != nil {
 		return nil, err
 	}

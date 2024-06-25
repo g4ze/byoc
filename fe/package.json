@@ -11,8 +11,11 @@
   "dependencies": {
     "@splinetool/react-spline": "^4.0.0",
     "@splinetool/runtime": "^1.7.6",
+    "dotenv": "^16.4.5",
+    "http-proxy-middleware": "^3.0.0",
     "next": "14.2.4",
     "next-auth": "^4.24.7",
+    "pg": "^8.12.0",
     "random-words": "^2.0.1",
     "react": "^18",
     "react-dom": "^18",
@@ -20,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pg": "^8.11.6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

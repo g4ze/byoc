@@ -1,0 +1,1 @@
+### We dont require this reverse proxy currently as we are doing that using nextjs only, this helps us reduce deployment costs.

@@ -43,7 +43,7 @@ func GetLB_DNS(subdomain string) (string, error) {
 
 	// Query the database
 	var serviceURL string
-	query := "SELECT \"loadbalancerDNS\" FROM \"Service\" WHERE \"Slug\" = $1"
+	query := "SELECT \"loadbalancerDNS\" FROM \"Service\" WHERE \"slug\" = $1"
 	err = db.QueryRow(query, subdomain).Scan(&serviceURL)
 	if err != nil {
 		if err == sql.ErrNoRows {
