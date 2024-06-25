@@ -9,8 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2"
 )
 
-func CreateTargetGroup(elbSvc *elbv2.ELBV2, Image string) (*string, error) {
-	targetGroupName := generateName("", Image, "tg")
+func CreateTargetGroup(elbSvc *elbv2.ELBV2, deploymentName string) (*string, error) {
+	targetGroupName := generateName("", deploymentName, "tg")
 
 	// Define target group input
 	createInput := &elbv2.CreateTargetGroupInput{

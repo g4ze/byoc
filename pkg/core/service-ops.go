@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -16,7 +17,7 @@ import (
 func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image string, Port int32, Environment []types.KeyValuePair, DeploymentName string) (*byocTypes.Service, error) {
 	var desiredCount int32 = 2
 	containerName := generateName(UserName, Image, "container")
-	serviceName := generateNameFromImage(Image)
+	serviceName := strings.ReplaceAll(DeploymentName, " ", "-")
 	Family := generateName(UserName, Image, "task")
 	isService, serviceStatus, err := ServiceExists(svc, serviceName, UserName)
 	if err != nil {
@@ -56,12 +57,12 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 	}
 	log.Printf("Creating service %s", serviceName)
 	// this needs a change, we cant keep creating load balancers
-	// based on the image name, we need to create a unique name
-	loadBalancerArn, lbdns, err := CreateLoadBalancer(elbSvc, Image)
+	// based on the service/deploymeny name, we need to create a unique name
+	loadBalancerArn, lbdns, err := CreateLoadBalancer(elbSvc, serviceName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create load balancer: %+v", err)
 	}
-	targetGroupArn, err := CreateTargetGroup(elbSvc, Image)
+	targetGroupArn, err := CreateTargetGroup(elbSvc, serviceName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create target group: %v", err)
 	}

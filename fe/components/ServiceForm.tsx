@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
 import { Heading } from './Heading';
-import { Field } from './Field';
-import Image from 'next/image';
-import exclamationImg from '@/public/exclamation.png'
-import { Env } from '@/types';
-import { time } from 'console';
+import { Env, Service } from '@/types';
 import { uniqueNamesGenerator, Config, adjectives, animals } from 'unique-names-generator';
 
 
-const ServiceForm = () => {
+import React, { Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
+const ServiceForm = ({services, setServices, setActiveService}:{services: Service[], 
+    setServices: Dispatch<SetStateAction<Service[]>>, setActiveService:Dispatch<SetStateAction<string>>}) => {
 
   const customConfig: Config = {
     dictionaries: [adjectives, animals],
@@ -25,7 +23,7 @@ const ServiceForm = () => {
   const [error, setError] = useState('');
 //   const [env, setEnv] = useState(Env);
 //   const [region, setRegion] = useState('US East (Ohio)');
-
+    
   const handleSubmit = (e:any) => {
     (async () => {
         // Handle form submission logic here
@@ -45,7 +43,30 @@ const ServiceForm = () => {
                 'deploymentName': deploymentName,
             }),
         });
-        console.log(resp.text());
+        setIsLoading(false);
+        if (resp.ok) {
+            // Redirect to the service page
+            console.log(resp)
+            
+            const data = await resp.json();
+            console.log(data);
+            setServices([...services, data]);
+            const scrollToService = (serviceName: string) => {
+                setActiveService(serviceName);
+                // can do better prop drilling
+                localStorage.setItem('activeService', serviceName);
+                const element = document.getElementById(serviceName);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+            scrollToService(data.name);
+        } else {
+            const data = await resp.json();
+            setIsLoading(false);
+            setError(data.message);
+
+        }
     })();
     }
 

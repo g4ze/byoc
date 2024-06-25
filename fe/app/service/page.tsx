@@ -5,6 +5,7 @@ import { TabButton, ActiveTaskButton } from "@/components/TabButton";
 import CreateService from '@/components/CreateService';
 import Services from '@/components/Services';
 import  {Service}  from '@/types';
+import ServiceForm from '@/components/ServiceForm';
 
 export default function ServicePage() {
     const [activeService, setActiveService] = useState('create-deployment');
@@ -96,9 +97,9 @@ export default function ServicePage() {
                 
                 <div className="col-span-9 overflow-y-auto">
                     <section id="create-deployment" className="h-screen items-center justify-center">
-                       <CreateService/>
+                       <ServiceForm services={services} setServices={setServices} setActiveService={setActiveService}/>
                     </section>
-                    <Services services={services}/>
+                    <Services services={services} setActiveService={setActiveService}/>
                 </div>
             </div>
         </>

@@ -1,55 +1,35 @@
 package database
 
 import (
+	"context"
 	"database/sql"
-	"fmt"
-	"os"
+	"log"
 
-	"github.com/joho/godotenv"
+	"github.com/g4ze/byoc/pkg/database/db"
 )
 
 func GetLB_DNS(subdomain string) (string, error) {
-	// Connection parameters
-	err := godotenv.Load("../.env.postgres")
-	if err != nil {
-		return "", fmt.Errorf("error loading .env file: %v", err)
+	client := db.NewClient()
+	if err := client.Prisma.Connect(); err != nil {
+		return "", err
 	}
-	var (
-		host     = "localhost"
-		port     = 5432 // Default PostgreSQL port
-		user     = os.Getenv("POSTGRES_USER")
-		password = os.Getenv("POSTGRES_PASSWORD")
-		dbname   = os.Getenv("POSTGRES_DB")
-	)
-
-	// Connection string
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	// Open database connection
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		return "", fmt.Errorf("error opening database connection: %v", err)
-	}
-	defer db.Close()
-
-	// Test the connection
-	err = db.Ping()
-	if err != nil {
-		return "", fmt.Errorf("error pinging database: %v", err)
-	}
-
-	// Query the database
-	var serviceURL string
-	query := "SELECT \"loadbalancerDNS\" FROM \"Service\" WHERE \"slug\" = $1"
-	err = db.QueryRow(query, subdomain).Scan(&serviceURL)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return "", fmt.Errorf("no service URL found for subdomain: %s", subdomain)
+	defer func() {
+		if err := client.Prisma.Disconnect(); err != nil {
+			panic(err)
 		}
-		return "", fmt.Errorf("error querying database: %v", err)
-	}
+	}()
+	ctx := context.Background()
 
-	return serviceURL, nil
+	resp, err := client.Service.FindMany(
+		db.Service.Slug.Equals(subdomain),
+	).Exec(ctx)
+	if err != nil {
+		return "", err
+	}
+	if len(resp) == 0 {
+		return "", sql.ErrNoRows
+	}
+	log.Print("Got response: ", resp[0].LoadbalancerDNS)
+	return resp[0].LoadbalancerDNS, nil
+
 }

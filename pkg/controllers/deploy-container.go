@@ -12,7 +12,6 @@ import (
 	"github.com/g4ze/byoc/pkg/core"
 	byocTypes "github.com/g4ze/byoc/pkg/types"
 	"github.com/joho/godotenv"
-	"github.com/sio/coolname"
 )
 
 // Deploy the container
@@ -62,16 +61,9 @@ func Deploy_container(newDeployment *byocTypes.DeployContainerPayload) (*byocTyp
 		return nil, nil
 	}
 
-	service.Slug, err = GenerateSlug(newDeployment.UserName)
-	if err != nil {
-		return nil, err
-	}
+	service.Slug = (newDeployment.DeploymentName)
+
 	log.Printf("returning service: %+v", service)
 	return service, nil
 
-}
-func GenerateSlug(UserName string) (string, error) {
-	slug, err := coolname.SlugN(3)
-	slug += "-" + UserName
-	return slug, err
 }

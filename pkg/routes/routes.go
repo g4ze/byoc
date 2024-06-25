@@ -29,6 +29,7 @@ func Server() {
 	// 429 = too many requests
 	r.POST("/create-user", handlers.Create_User)
 	r.POST("/login", handlers.Login)
+	r.GET("/get-lbdns", handlers.Get_LBDNS)
 	// Create a new group for routes that require JWT middleware
 	authRoutes.POST("/whoami", handlers.WhoAMI)
 	authRoutes.POST("/make-cluster", handlers.Make_Cluster)
@@ -37,5 +38,5 @@ func Server() {
 	authRoutes.DELETE("/delete-container", handlers.Delete_Container)
 	authRoutes.GET("/get-services", handlers.Get_Services)
 
-	r.Run(":2001") // listen and serve on 0.0.0.0:2001
+	r.Run(":2001")
 }

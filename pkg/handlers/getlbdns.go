@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 
+	"github.com/g4ze/byoc/pkg/database"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +18,11 @@ func Get_LBDNS(c *gin.Context) {
 		return
 	}
 	// get lb dns
-	GetLB_DNS(slug)
+	dns, err := database.GetLB_DNS(slug)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"dns": dns, "slug": slug})
 
 }

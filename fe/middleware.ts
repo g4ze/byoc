@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
             const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
-        url.hostname = data.lbDns;
+        url.hostname = data.dns;
         url.pathname = paths.slice(3).join('/');
         url.port = ''
         console.info(`Redirecting to: ${url.toString()}`);
