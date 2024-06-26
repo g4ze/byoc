@@ -1,0 +1,1 @@
+{"config":{"lang":["en"],"separator":"[\\s\\-,:!=\\[\\]()\"/]+|(?!\\b)(?=[A-Z][a-z])|\\.(?!\\d)|&[lg]t;","pipeline":["stopWordFilter"]},"docs":[{"location":"","title":"Homepage","text":""}]}
