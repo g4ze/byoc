@@ -30,6 +30,7 @@ func Server() {
 	r.POST("/create-user", handlers.Create_User)
 	r.POST("/login", handlers.Login)
 	r.GET("/get-lbdns", handlers.Get_LBDNS)
+	r.GET("/health", handlers.Health)
 	// Create a new group for routes that require JWT middleware
 	authRoutes.POST("/whoami", handlers.WhoAMI)
 	authRoutes.POST("/make-cluster", handlers.Make_Cluster)

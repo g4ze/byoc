@@ -8,6 +8,7 @@ func generateName(UserName string, Image, suffix string) string {
 	}
 	return UserName + "-" + strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(Image, "/", "-"), ".", "-"), ":", "-") + "-" + suffix
 }
-func generateNameFromImage(Image string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(Image, "/", "-"), ".", "-"), ":", "-")
-}
+
+// func generateNameFromImage(Image string) string {
+// 	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(Image, "/", "-"), ".", "-"), ":", "-")
+// }

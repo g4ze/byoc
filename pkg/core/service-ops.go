@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -87,12 +88,12 @@ func CreateService(svc *ecs.Client, elbSvc *elbv2.ELBV2, UserName string, Image 
 		NetworkConfiguration: &types.NetworkConfiguration{
 			AwsvpcConfiguration: &types.AwsVpcConfiguration{
 				Subnets: []string{
-					// os.Getenv("SUBNET1"),
-					// os.Getenv("SUBNET2"),
-					// os.Getenv("SUBNET3"),
-					"subnet-03f664a0d4fe40293",
-					"subnet-01850c7c6f49dfb7f",
-					"subnet-0450df2a14564e3d5",
+					*aws.String(os.Getenv("SUBNET1")),
+					*aws.String(os.Getenv("SUBNET2")),
+					*aws.String(os.Getenv("SUBNET3")),
+					// "subnet-03f664a0d4fe40293",
+					// "subnet-01850c7c6f49dfb7f",
+					// "subnet-0450df2a14564e3d5",
 				},
 				AssignPublicIp: types.AssignPublicIpEnabled,
 				SecurityGroups: []string{"sg-0d1526e6316cb2abf"},
@@ -169,7 +170,6 @@ func DeleteService(elbSvc *elbv2.ELBV2, svc *ecs.Client, service *byocTypes.Serv
 		return fmt.Errorf("unable to delete service: %v", err)
 	}
 	log.Printf("Service %v deleted from AWS", service.Name)
-	// image and service are of same name
 	if service.LoadBalancerARN != "" {
 		err = DeleteLoadBalancerARN(elbSvc, &service.LoadBalancerARN)
 		if err != nil {
