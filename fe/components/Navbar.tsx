@@ -1,4 +1,9 @@
-export default function Navbar({serviceName}:{serviceName?:string}) {
+"use client"
+import { usePathname } from "next/navigation";
+
+export default function Navbar({Name}:{Name?:string}) {
+    // get the current url
+    const path=usePathname()
     return (
 
 
@@ -6,9 +11,9 @@ export default function Navbar({serviceName}:{serviceName?:string}) {
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <a href="#" className="flex items-center space-x-3 rtl:space-x-reverse">
                     <img src="https://flowbite.com/docs/images/logo.svg" className="h-8" alt="Flowbite Logo" />
-                    <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite /</span>
+                    <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
                     <div className="self-center text-1xl font-semibold whitespace-nowrap dark:text-white">
-                        {serviceName}
+                        / {Name}
                     </div>
                 </a>
                 

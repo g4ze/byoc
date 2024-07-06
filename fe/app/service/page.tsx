@@ -43,7 +43,7 @@ export default function ServicePage() {
             }
         };
         fetchData();
-    }, ['const']);
+    }, );
 
 
 
@@ -57,7 +57,7 @@ export default function ServicePage() {
 
     return (
         <>
-            <Navbar serviceName='new Deployment'/>
+            <Navbar Name='new Deployment'/>
             <div className="grid grid-cols-11 h-screen text-gray-400">
                 <div className="col-span-2 border-r-2 border-gray-300 flex justify-center pt-8">
                     <ul className="w-full">
