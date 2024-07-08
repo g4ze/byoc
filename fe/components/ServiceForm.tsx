@@ -23,14 +23,14 @@ const ServiceForm = ({services, setServices, setActiveService}:{services: Servic
   const [error, setError] = useState('');
 //   const [env, setEnv] = useState(Env);
 //   const [region, setRegion] = useState('US East (Ohio)');
-    
+  const HOST_URL = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:2001";
   const handleSubmit = (e:any) => {
     (async () => {
         // Handle form submission logic here
         setIsLoading(true);
         setError('');
         console.log(imageName, port);
-        const resp=await fetch('http://localhost:2001/v1/deploy-container', {
+        const resp=await fetch(HOST_URL+'/v1/deploy-container', {
             'method': 'POST',
             'headers': {
                 'Content-Type': 'application/json',

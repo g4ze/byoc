@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:2001"
+    depends_on:
+      - db
+    env_file:
+      - ./.env  
+    
+    volumes:
+      - .:/app
+    networks:
+      - byoc-network
+
+  db:
+    image: postgres:latest
+    container_name: byoc_postgres
+    environment:
+      - POSTGRES_PASSWORD=Welcome
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - byoc-network
+
+volumes:
+  postgres_data:
+  
+networks:
+  byoc-network:
+    driver: bridge

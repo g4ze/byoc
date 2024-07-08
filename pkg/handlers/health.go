@@ -5,7 +5,6 @@ import (
 
 	"github.com/g4ze/byoc/pkg/database/db"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 // health should check the health of the service
@@ -14,11 +13,7 @@ import (
 // other related env variables
 // and return errors accordingly
 func Health(c *gin.Context) {
-	err := godotenv.Load()
-	if err != nil {
-		c.JSON(500, gin.H{"error": "Error loading .env file", "message": err.Error()})
-		return
-	}
+
 	AWS_REGION := os.Getenv("AWS_REGION")
 	AWS_ACCESS_KEY_ID := os.Getenv("AWS_ACCESS_KEY_ID")
 	AWS_SECRET_ACCESS_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY")

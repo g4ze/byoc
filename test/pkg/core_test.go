@@ -107,7 +107,7 @@ func TestService(t *testing.T) {
 
 	core.CreateTaskDefinition(svc, "test", img, 80, nil)
 	log.Printf("Creating service")
-	service, err := core.CreateService(svc, elbSvc, "test", img, int32(80), []types.KeyValuePair{{Name: aws.String("test"), Value: aws.String("test")}})
+	service, err := core.CreateService(svc, elbSvc, "test", img, int32(80), []types.KeyValuePair{{Name: aws.String("test"), Value: aws.String("test")}}, "test")
 	if err != nil {
 		log.Fatalf("Error creating service: %v", err)
 	}

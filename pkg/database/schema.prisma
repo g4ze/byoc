@@ -1,7 +1,8 @@
 datasource db {
     // could be postgresql or mysql
     provider = "postgresql"
-    url      = "postgresql://postgres:Welcome@localhost:5432/postgres"
+    // url      = "postgresql://postgres:Welcome@localhost:5432/postgres"
+    url      = env("DATABASE_URL")
 }
 
 generator db {

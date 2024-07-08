@@ -1,6 +1,9 @@
 package routes
 
 import (
+	"log"
+	"os"
+
 	"github.com/g4ze/byoc/pkg/handlers"
 	"github.com/g4ze/byoc/pkg/middleware"
 	"github.com/gin-contrib/cors"
@@ -14,7 +17,12 @@ func Server() {
 
 	// With this custom configuration:
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your frontend URL
+	FE_URL, exists := os.LookupEnv("FE_URL")
+	log.Println("FE_URL: " + FE_URL)
+	if !exists {
+		FE_URL = "http://localhost:3000"
+	}
+	config.AllowOrigins = []string{FE_URL} // Replace with your frontend URL
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
 	config.ExposeHeaders = []string{"Content-Length"}

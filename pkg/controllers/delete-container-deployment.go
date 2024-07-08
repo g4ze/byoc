@@ -12,15 +12,11 @@ import (
 	"github.com/g4ze/byoc/pkg/core"
 	"github.com/g4ze/byoc/pkg/database"
 	"github.com/g4ze/byoc/pkg/types"
-	"github.com/joho/godotenv"
 )
 
 // deletes the container deployed
 func DeleteContainerDeployment(service *types.Service) error {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
+
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatalf("Unable to load SDK config: %v", err)

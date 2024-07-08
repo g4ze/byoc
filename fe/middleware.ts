@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
-  const BE_HOST= process.env.BE_HOST||"http://localhost:2001"
+  const BE_HOST= process.env.NEXT_PUBLIC_BE_URL||"http://localhost:2001"
     console.info("path: ", url.pathname)
     const paths= url.pathname.split("/")
     if (paths[1]==='d'){

@@ -11,7 +11,7 @@ export default function ServicePage() {
     const [activeService, setActiveService] = useState('create-deployment');
     const [services, setServices] = useState<Service[]>([]);
     const ENDPOINT="/v1/get-services"
-    const HOST_URL="http://localhost:2001"
+    const HOST_URL = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:2001";
     
     
     useEffect(() => {
@@ -43,7 +43,7 @@ export default function ServicePage() {
             }
         };
         fetchData();
-    }, );
+    }, []);
 
 
 

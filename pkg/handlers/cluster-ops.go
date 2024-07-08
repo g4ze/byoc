@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func Make_Cluster(c *gin.Context) {
@@ -16,10 +15,7 @@ func Make_Cluster(c *gin.Context) {
 	// create cluster
 	// return response to client
 	clusterName := c.Request.URL.Query().Get("clusterName")
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
@@ -42,10 +38,7 @@ func Make_Cluster(c *gin.Context) {
 func Delete_Cluster(c *gin.Context) {
 
 	clusterName := c.Request.URL.Query().Get("clusterName")
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)

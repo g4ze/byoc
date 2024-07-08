@@ -3,7 +3,8 @@ import { Heading } from "./Heading";
 import { Dispatch, SetStateAction, useState } from "react";
 export default function Services({ services, setActiveService }: { services: Service[], setActiveService: Dispatch<SetStateAction<string>> }) {
     console.log("services from services maping component: ", services);
-    const HOST_PROXY = process.env.HOST_PROXY || "localhost:80";
+    const HOST_PROXY = process.env.HOST_PROXY || "localhost:3000";
+    const HOST_URL = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:2001";
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleted, setIsDeleted] = useState(false);
     return (
@@ -33,7 +34,8 @@ export default function Services({ services, setActiveService }: { services: Ser
                             className="text-2xl pt-2 mb-3"
                         />
                         <Heading label="URL: " className="font-bold text-sm pt-6 " />
-                        <Heading label={"https://" + service.slug + "." + HOST_PROXY} className="text-2xl pt-2 mb-3" />
+                        <a href={"https://" +HOST_PROXY+"/d/"+ service.slug.replace(" ","-")}><Heading label={"https://" +HOST_PROXY+"/d/"+ service.slug.replace(" ","-")} className="text-2xl pt-2 mb-3" />
+                        </a>
                         <Heading label="logs:" className="font-bold text-sm pt-6 " />
                         <Heading
                             label={service.logs}
@@ -43,7 +45,7 @@ export default function Services({ services, setActiveService }: { services: Ser
                             onClick={async () => {
                                 setIsLoading(true)
 
-                                await fetch(`http://localhost:2001/v1/delete-container`, {
+                                await fetch(HOST_URL+`/v1/delete-container`, {
                                     method: "DELETE",
                                     headers: {
                                         "Content-Type": "application/json",

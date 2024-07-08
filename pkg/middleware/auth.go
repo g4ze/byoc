@@ -8,7 +8,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/g4ze/byoc/pkg/database"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"golang.org/x/time/rate"
 )
 
@@ -16,10 +15,7 @@ import (
 // appends the user attributed
 // to the token to the context params
 func JwtMiddleware() gin.HandlerFunc {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+
 	var JwtKey = []byte(os.Getenv("JWT_SECRET"))
 	if JwtKey == nil {
 		log.Fatalf("JWT_SECRET not found in .env")
@@ -70,10 +66,7 @@ func RateLimitMiddleware() gin.HandlerFunc {
 	}
 }
 func GenerateJWT(password, userName string) (string, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+
 	user, err := database.GetUser(userName, password)
 	if err != nil {
 		return "", err

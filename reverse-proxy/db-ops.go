@@ -11,9 +11,12 @@ import (
 
 func GetLB_DNS(subdomain string) (string, error) {
 	// Connection parameters
-	err := godotenv.Load("../.env.postgres")
-	if err != nil {
-		return "", fmt.Errorf("error loading .env file: %v", err)
+
+	if os.Getenv("GIN_MODE") != "release" {
+		err := godotenv.Load("../.env.postgres")
+		if err != nil {
+			return "", fmt.Errorf("error loading .env file: %v", err)
+		}
 	}
 	var (
 		host     = "localhost"

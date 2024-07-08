@@ -11,7 +11,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/g4ze/byoc/pkg/core"
 	byocTypes "github.com/g4ze/byoc/pkg/types"
-	"github.com/joho/godotenv"
 )
 
 // Deploy the container
@@ -28,10 +27,7 @@ func Deploy_container(newDeployment *byocTypes.DeployContainerPayload) (*byocTyp
 		}
 		return Environment2
 	}()
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
+
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatalf("Unable to load SDK config: %v", err)

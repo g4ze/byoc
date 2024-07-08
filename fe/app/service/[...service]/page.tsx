@@ -7,10 +7,19 @@ export default function Service() {
     const serviceName = pathname.split("/").pop();
 
     const [services, setServices] = useState([]);
-
+    const HOST_URL = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:2001";
     useEffect(() => {
         const fetchData = async () => {
-            await fetch(`http://localhost:3001/v1/get-services`)
+            await fetch(HOST_URL+`/v1/get-services`
+                ,{
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+
+                }
+            )
                 .then(response => response.json())
                 .then(data => setServices(data));
         };

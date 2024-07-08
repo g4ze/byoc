@@ -21,7 +21,7 @@ func GetLB_DNS(subdomain string) (string, error) {
 	ctx := context.Background()
 
 	resp, err := client.Service.FindMany(
-		db.Service.Slug.Equals(subdomain),
+		db.Service.Name.Equals(subdomain),
 	).Exec(ctx)
 	if err != nil {
 		return "", err

@@ -11,7 +11,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   // URL of the login endpoint
   const loginEndpoint = "/login";
-  const hosturl ="http://localhost:2001";
+  const hosturl = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:2001";
   return (
     <section className="h-screen">
       <div className="flex justify-center items-center h-screen  ">
@@ -79,7 +79,7 @@ export default function Login() {
               </div>
             </form>
             <div className="text-center mt-4">
-                Don't have an account? Sign Up
+                Don&apos;t have an account? <a onClick={() => router.push("/signup")}>Sign Up</a>
             </div>
           </div>
         </div>

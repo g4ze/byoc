@@ -12,7 +12,7 @@ export default function Signup() {
     const [email, setEmail] = useState("");
     // URL of the signup login endpoint
     const signupEndpoint = "/create-user";
-    const hosturl =  "http://localhost:2001";
+    const HOST_URL = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:2001";
     return (
         <section className="h-screen">
             <div className="flex justify-center items-center h-screen  bg-black bg-opacity-30">
@@ -58,7 +58,7 @@ export default function Signup() {
                                         console.log("signing up user: ", username, email, password)
                                         console.log("credentials: ", username, password, email)
                                         const response = await fetch(
-                                            hosturl + signupEndpoint,
+                                            HOST_URL + signupEndpoint,
                                             {
                                                 method: "POST",
                                                 headers: {
@@ -84,7 +84,7 @@ export default function Signup() {
                             </div>
                         </form>
                         <div className="text-center mt-4">
-                            Don't have an account? Sign Up
+                            Don&apos;t have an account?  <a onClick={() => router.push("/login")}>Login</a>
                         </div>
                     </div>
                 </div>

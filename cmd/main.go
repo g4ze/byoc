@@ -1,14 +1,19 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/g4ze/byoc/pkg/routes"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load("./.env.postgres")
-	if err != nil {
-		panic(err)
+	if os.Getenv("GIN_MODE") != "release" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatalf("Error loading .env file: %v", err)
+		}
 	}
 	routes.Server()
 }

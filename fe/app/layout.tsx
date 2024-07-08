@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Earth3D from "@/components/Earth3D";
-
+import {logger} from "@/logger";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -15,6 +15,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  logger.info("NEXT_PUBLIC_BE_URL: ", process.env.NEXT_PUBLIC_BE_URL);
   return (
     <html lang="en">
       <body className={inter.className}>
