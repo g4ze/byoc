@@ -5,7 +5,7 @@ hide:
 ---
 
 # Homepage
-<b>This a single click container deployment platform.</b>'
+<b>This a single click container deployment platform.</b>
 
 - put container registry link
 - pass ports to be exposed
