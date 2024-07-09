@@ -20,15 +20,15 @@ Check out this youtube video to see how the app functions live:
 
 <div class="grid cards" markdown>
 
-- :material-rocket-launch-outline:{ .lg .middle } **Introduction**
-  [:octicons-arrow-right-24:{ .middle } More](IntelOwl/introduction.md)
+- :material-rocket-launch-outline:{ .lg .middle } **Abouts**
+  [:octicons-arrow-right-24:{ .middle } More](about.md)
 
-- :fontawesome-regular-compass:{ .lg .middle } **Installation**
-  [:octicons-arrow-right-24:{ .middle } More](IntelOwl/installation.md)
+- :fontawesome-regular-compass:{ .lg .middle } **Setup**
+  [:octicons-arrow-right-24:{ .middle } More](setup.md)
 
 - :material-rocket-launch-outline:{ .lg .middle } **Contribute**
-  [:octicons-arrow-right-24:{ .middle } More](IntelOwl/contribute.md)
-
+  [:octicons-arrow-right-24:{ .middle } More](contribute.md)
+<!-- 
 - :material-tune-vertical:{ .lg .middle } **Usage**
   [:octicons-arrow-right-24:{ .middle } More](IntelOwl/usage.md)
 
@@ -36,6 +36,6 @@ Check out this youtube video to see how the app functions live:
   [:octicons-arrow-right-24:{ .middle } More](IntelOwl/advanced_usage.md)
 
 - :material-tune-vertical:{ .lg .middle } **Advanced Configuration**
-  [:octicons-arrow-right-24:{ .middle } More](IntelOwl/advanced_configuration.md)
+  [:octicons-arrow-right-24:{ .middle } More](IntelOwl/advanced_configuration.md) -->
 
 </div>
