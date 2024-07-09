@@ -1,5 +1,7 @@
 # This software enables you to deploy your containers with a single click.
-i should add ci linters, the code quality is crap, oops
+
+Checkout all docs and implementation [here](https://g4ze.github.io/byoc/)
+
 
 ## Database setup etc
 ### in the pkg/database dir
