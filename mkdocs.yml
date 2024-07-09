@@ -1,10 +1,17 @@
 site_name: BYOC
 site_url: https://g4ze.github.io/byoc
 repo_url: https://github.com/g4ze/byoc
+repo_name: g4ze/byoc
 site_author: Nilay Gupta
 site_description: Bring Your Own Container
 
 
+nav:
+  - Home: "index.md"
+  - Setup: "setup.md"
+  - Contribute: "contribute.md"
+  - About: "about.md"
+      
 
 plugins:
   - search:
@@ -30,10 +37,14 @@ theme:
     - content.tabs.link
     - content.code.annotation
     - content.code.copy
+extra_css:
+  - assets/css/custom.css
 
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
+  - attr_list
+  - md_in_html
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - admonition
@@ -47,6 +58,7 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - admonition
 extra:
   social:
     - icon: fontawesome/brands/github-alt
@@ -55,4 +67,4 @@ extra:
       link: https://www.linkedin.com/in/guptanilay1/
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/guptanilay1
-copyright: Copyright © 2024 Nilay Gupta  
+copyright: Copyright ©  Nilay Gupta  

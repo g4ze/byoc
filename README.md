@@ -1,13 +1,6 @@
 # This software enables you to deploy your containers with a single click.
 i should add ci linters, the code quality is crap, oops
 
-## Endpoints:
-| Endpoint | Description |
-|----------|-------------|
-| /api/v1/register | Register New User |
-| /api/v1/login | Login of a User |
-| /api/v1/createcluster | Create a cluster for user |
-
 ## Database setup etc
 ### in the pkg/database dir
 setup the db `docker run --name byoc_postgres -e POSTGRES_PASSWORD=Welcome -p 5432:5432 postgres:latest`

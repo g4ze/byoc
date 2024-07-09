@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: byoc_app
     ports:
       - "80:2001"
     depends_on:
