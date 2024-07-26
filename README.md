@@ -2,6 +2,14 @@
 
 Checkout all docs and implementation [here](https://g4ze.github.io/byoc/)
 
+Read on LinkedIn [here](https://www.linkedin.com/posts/guptanilay1_bring-your-own-container-activity-7222729928209809408-VaSP?utm_source=share&utm_medium=member_desktop)
+
+Read the tech blog [here](https://nilaygupta.hashnode.dev/bring-your-own-container)
+
+
+
+
+
 
 ## Database setup etc
 ### in the pkg/database dir

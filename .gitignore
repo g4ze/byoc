@@ -2,3 +2,4 @@
 .chache/*
 data
 fe/.env
+fe/app.log
