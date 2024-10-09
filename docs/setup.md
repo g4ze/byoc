@@ -5,7 +5,7 @@ As our fortunes seem, the project is not deployed for public use due to shortage
 ## Prerequisites
 
 ### AWS
-- AWS secreets access id and keys.
+- AWS secret access id and keys.
 - IAM user with ECS admin policy.
 - Decide on AWS Region (based on wherever you are situated)
 - ECS_VPC- any VPC you make in your region.
@@ -28,14 +28,14 @@ For Frontend based development, it is recommended to build and run the backend u
 ### Backend
 Most straight forward to quicly start BE would be to use docker compose. For ease of setup, everything is in place.
 
-We do need to setup all unset variables in the .env.tamplate file.
+We do need to setup all unset variables in the .env.template file.
 ```
 cp .env.template .env
 ```
 Now set all the required variables.
 
 
-Just execute the commands below in prject root folder (BYOC/)
+Just execute the commands below in project root folder (BYOC/)
 
 - start the containers:
 ```
@@ -53,7 +53,7 @@ That's it. Everything good to go now!
     if you want to work on the BE, just start it using `go cmd/main.go` for BE dev. Do a compose build to check if eveything is in place and you're good to go.
 
 ### Frontend
-The `fe` folder acts as the root flder for our frontend written in NEXTjs. It alse acts as a proxy server for proxying custom paths to the deployment DNS.
+The `fe` folder acts as the root flder for our frontend written in NEXTjs. It also acts as a proxy server for proxying custom paths to the deployment DNS.
 
 set env using `cp fe/.env.template fe/.env`
 
