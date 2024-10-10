@@ -56,7 +56,7 @@ func TestTaskFunctions(t *testing.T) {
 		log.Fatal(err)
 	}
 	core.CreateTaskDefinition(svc, "test", "test", 80, nil)
-	core.DeleteTaskDefination(svc, "test", "test")
+	core.DeleteTaskDefinition(svc, "test", "test")
 }
 
 func TestCluster(t *testing.T) {
